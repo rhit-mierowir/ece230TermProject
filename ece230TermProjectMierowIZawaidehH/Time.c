@@ -6,7 +6,7 @@
  */
 
 #include "Time.h"
-
+#include <stdio.h>
 
 typedef struct {
     unsigned short day;
@@ -18,5 +18,9 @@ typedef struct {
 
 TimeLength stringToTime(String inputTime);
 
-String timeToString (TimeLength inputTime);
+String timeToString (TimeLength inputTime){
+    char timeStr[20];
+    //sprintf(timeStr, "%dd%dh%dm%s%ms");
+    return timeStr;
+}
 
