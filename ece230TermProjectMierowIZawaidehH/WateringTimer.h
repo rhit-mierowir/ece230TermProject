@@ -5,9 +5,9 @@
  *      Author: zawaidhm
  */
 
-#ifndef PLANTTIMER_H_
-#define PLANTTIMER_H_
+#ifndef WATERINGTIMER_H_
+#define WATERINGTIMER_H_
 
 
 
-#endif /* PLANTTIMER_H_ */
+#endif /* WATERINGTIMER_H_ */
