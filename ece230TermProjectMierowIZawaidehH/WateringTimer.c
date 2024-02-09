@@ -25,10 +25,22 @@ TimeLength Timer1WateringLength;
  * These are interpreted from the TimeLength values stored above.
  *
  */
+typedef struct{
+    unsigned int fullRunCount; //how many full runs we need
+    unsigned short additionalTicks; // number of extra ticks for final run (this will not be a complete run)
+}TimerSettings;
+
+typedef struct{
+    unsigned volatile int fullRunsRemaining; //variable that counts down from fullRunCount and holds number of full runs left
+    unsigned volatile short finalRunTicks; // stores the number that we are comparing against in our final run to know when to interrupt the timer
+}TimerValues;
+
 typedef struct {
-    unsigned int fullRunCount;
-    unsigned short finalRunTicks;
-}TimerTicks;
+    TimerSettings WateringSettings;
+    TimerSettings WaitingSettings;
+    TimerValues ActiveValues;
+}TimerInformation;
+
 
 
 void initWateringTimer(void);
