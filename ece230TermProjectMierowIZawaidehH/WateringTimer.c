@@ -43,10 +43,10 @@ typedef struct{
 
 
 typedef struct { //The KING
+    TimerRegister Reg;
     TimerSettings WateringSettings;
     TimerSettings WaitingSettings;
-    TimerValues ActiveValues;
-    TimerRegister Reg;
+    TimerValues   ActiveValues;
 }TimerData;
 
 
