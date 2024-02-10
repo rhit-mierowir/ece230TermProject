@@ -35,11 +35,19 @@ typedef struct{
     unsigned volatile short finalRunTicks; // stores the number that we are comparing against in our final run to know when to interrupt the timer
 }TimerValues;
 
-typedef struct {
+typedef struct{
+    uint16_t *CCR; //CCR register - allows us to update CCRy value for specific timer
+    uint16_t *CCTL; //CCTL timer of specific timer
+    uint16_t InterruptMask; //specify bit that sets timer interrupt (specific timer) - bit interrupt is in to reset it [set compare capture interrupt flag]
+}TimerRegister;
+
+
+typedef struct { //The KING
     TimerSettings WateringSettings;
     TimerSettings WaitingSettings;
     TimerValues ActiveValues;
-}TimerInformation;
+    TimerRegister Reg;
+}TimerData;
 
 
 
