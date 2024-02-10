@@ -6,6 +6,8 @@
  */
 
 #include "Time.h"
+#include "Pump.h"
+
 
 /*  Timer Configuration Variables:
  *
