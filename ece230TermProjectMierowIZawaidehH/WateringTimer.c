@@ -58,6 +58,15 @@ typedef struct { //The KING
 
 void initWateringTimer(void);
 
+//concludes a full timer run cycle (0xFFFF), decrements currentFullRunCount and begins final run or switches state if needed
+void completeFullRunTasks_interrupt(TimerData *timer);
+
+
+
+//concludes the final run (partial cycle),
+void completePartialRunTasks_interrupt(TimerData *timer);
+
+
 //initiate final run timer, enables CCR, CCIFG, (CCIE flag needed?)
 /*
  * Will initiate final run and set ccr value to appropriate value
@@ -76,4 +85,8 @@ void startTimerCycle_interrupt(TimerData *timer);
 void recalculateActiveValues(TimerData *timer);
 
 #define WTimerCounterRegister TIMER_A3->R
+
+void TA3_0_IRQHandler(void);
+void TA3_N_IRQHandler(void);
+__enable_irq(); //enable global interrupt
 
