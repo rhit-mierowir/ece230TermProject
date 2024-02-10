@@ -7,6 +7,7 @@
 
 #include "Time.h"
 #include "Pump.h"
+#include "msp.h"
 
 
 /*  Timer Configuration Variables:
@@ -41,6 +42,7 @@ typedef struct{
     uint16_t *CCR; //CCR register - allows us to update CCRy value for specific timer
     uint16_t *CCTL; //CCTL timer of specific timer
     uint16_t InterruptMask; //specify bit that sets timer interrupt (specific timer) - bit interrupt is in to reset it [set compare capture interrupt flag]
+    uint16_t InterruptEnableMask; // CCIE
 }TimerRegister;
 
 
@@ -49,11 +51,29 @@ typedef struct { //The KING
     TimerSettings WateringSettings;
     TimerSettings WaitingSettings;
     TimerValues   ActiveValues;
+    PumpInfo    *Pump;
 }TimerData;
 
 
 
 void initWateringTimer(void);
 
+//initiate final run timer, enables CCR, CCIFG, (CCIE flag needed?)
+/*
+ * Will initiate final run and set ccr value to appropriate value
+ */
+void initFinalRun_interrupt(TimerData *timer);
 
+
+/*
+ * Toggle pump, switch active state of timer and pump (wait<-->water), switch timer mode, recalculate  active values for next run
+ */
+void startTimerCycle_interrupt(TimerData *timer);
+
+/*
+ * using the current timer location, use the proper offset for desired time length, be able to refer to correct register to get current number of ticks
+ */
+void recalculateActiveValues(TimerData *timer);
+
+#define WTimerCounterRegister TIMER_A3->R
 
