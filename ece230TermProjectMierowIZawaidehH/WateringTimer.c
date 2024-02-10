@@ -22,6 +22,8 @@
 TimeLength Timer1WaitLength;
 TimeLength Timer1WateringLength;
 
+void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange);
+
 /* Timer Tick Objects:
  *
  * These objects are the objects that store the tick information used to operate the timers.
