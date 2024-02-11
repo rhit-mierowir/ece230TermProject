@@ -62,8 +62,8 @@ typedef struct{
 typedef struct{
     uint16_t *CCR; //CCR register - allows us to update CCRy value for specific timer
     uint16_t *CCTL; //CCTL timer of specific timer
-    uint16_t InterruptMask; //specify bit that sets timer interrupt (specific timer) - bit interrupt is in to reset it [set compare capture interrupt flag]
-    uint16_t InterruptEnableMask; // CCIE
+    uint16_t InterruptMask; //specify bit that sets timer interrupt (specific timer) - bit interrupt is in to reset it [set and reset compare capture interrupt flag]
+    uint16_t InterruptEnableMask; // CCIE -  enable and disable interrupt
 }TimerRegister;
 
 
@@ -101,7 +101,14 @@ void initWateringTimer(){
 
 //concludes a full timer run cycle (0xFFFF), decrements currentFullRunCount and begins final run or switches state if needed
 void completeFullRunTasks_interrupt(TimerData *timer);
-
+void completeFullRunTasks_interrupt(TimerData *timer){
+    *timer->ActiveValues->fullRunsRemaining--;
+//    if(*timer->ActiveValues->fullRunsRemaining==0){
+//        if(*timer->ActiveValues->finalRunTicks<=2){
+//
+//        }
+//    }
+}
 
 
 //concludes the final run (partial cycle),
@@ -113,7 +120,18 @@ void completePartialRunTasks_interrupt(TimerData *timer);
  * Will initiate final run and set ccr value to appropriate value
  */
 void initFinalRun_interrupt(TimerData *timer);
+void initFinalRun_interrupt(TimerData *timer){
+    //TODO change 2 (margin of error) to a constant no magic numeros
+    if(*timer->ActiveValues->finalRunTicks<=2){
+        completePartialRunTasks_interrupt(*timer);
+    }else{
+        //enable TAxCCTLy CCIFG for the particular pump
+        *timer->Reg->CCTL|= *timer->Reg->InterruptEnableMask;
+        //TAxCCRy = finalRunTicks
+        *timer->Reg->CCR=*timer->ActiveValues->finalRunTicks;
 
+    }
+}
 
 /*
  * Toggle pump, switch active state of timer and pump (wait<-->water), switch timer mode, recalculate  active values for next run
