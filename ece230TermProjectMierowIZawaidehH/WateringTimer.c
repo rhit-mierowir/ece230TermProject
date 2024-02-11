@@ -81,7 +81,21 @@ void initWateringTimer(void);
 void initWateringTimer(){
     //TODO fix cstl1 line to set smclk correctly
     CSCTL1->SELS=0b001; //set SMCLK source to VLOCLK
-   // TIMER_A3->CTL|
+
+    /*
+     * Bits 9-8 (0b10) smclk, 7-6(0b11) div 8, 5-4 (0b10)cont mode,
+     * 3- reserved, 2(0b1) clear,
+     * 1 (0b1) TAIFG interrupt enables, 0(0b0) TAIF no interrupt pending
+     */
+    TIMER_A3->CTL|=0x2E6; //0b1011100110
+    TIMER_A3->EX0|=0b111; //divide by 8
+
+    TIMER_A3->CCTL[0] = 0b0;
+    TIMER_A3->CCTL[1] = 0b0;
+    TIMER_A3->CCTL[2] = 0b0;
+    TIMER_A3->CCTL[3] = 0b0;
+    TIMER_A3->CCTL[4] = 0b0;
+
 }
 
 
@@ -105,11 +119,33 @@ void initFinalRun_interrupt(TimerData *timer);
  * Toggle pump, switch active state of timer and pump (wait<-->water), switch timer mode, recalculate  active values for next run
  */
 void startTimerCycle_interrupt(TimerData *timer);
+void startTimerCycle_interrupt(TimerData *timer){
+    togglePump(*timer->Pump); //toggle pump status
+    if(*timer->Pump->IsActive){
+        recalculateActiveValues(*timer->WateringSettings, *timer->ActiveValues);
+
+    }else{
+        recalculateActiveValues(*timer->WaitingSettings, *timer->ActiveValues);
+    }
+
+}
 
 /*
  * using the current timer location, use the proper offset for desired time length, be able to refer to correct register to get current number of ticks
  */
-void recalculateActiveValues(TimerData *timer);
+void recalculateActiveValues(TimerSettings *length, TimerValues *valuesToChange);
+void recalculateActiveValues(TimerSettings *length, TimerValues *valuesToChange){
+    //int currentTicks = TIMER_A3->R;
+    int currentTicks = *WTimerCounterRegister;
+    if(0xFFFF-currentTicks< (*length->additionalTicks)){
+        *valuesToChange->fullRunsRemaining=*length->fullRunCount+1;
+        *valuesToChange->finalRunTicks = *length->additionalTicks -(0xFFFF-currentTicks);
+    }else{
+        *valuesToChange->fullRunsRemaining=*length->fullRunCount;
+        *valuesToChange->finalRunTicks = *length->additionalTicks + currentTicks;
+    }
+}
+
 
 #define WTimerCounterRegister TIMER_A3->R
 
