@@ -123,9 +123,16 @@ void startTimerCycle_interrupt(TimerData *timer);
 /*
  * using the current timer location, use the proper offset for desired time length, be able to refer to correct register to get current number of ticks
  */
-void recalculateActiveValues(TimerData *timer);
-void recalculateActiveValues(TimerData *timer){
-
+void recalculateActiveValues(TimerSettings *length, TimerValues *valuesToChange);
+void recalculateActiveValues(TimerSettings *length, TimerValues *valuesToChange){
+    int currentTicks = TIMER_A3->R;
+    if(0xFFFF-currentTicks< (*length->additionalTicks)){
+        *valuesToChange->fullRunsRemaining=*length->fullRunCount+1;
+        *valuesToChange->finalRunTicks = *length->additionalTicks -(0xFFFF-currentTicks);
+    }else{
+        *valuesToChange->fullRunsRemaining=*length->fullRunCount;
+        *valuesToChange->finalRunTicks = *length->additionalTicks + currentTicks;
+    }
 }
 
 
