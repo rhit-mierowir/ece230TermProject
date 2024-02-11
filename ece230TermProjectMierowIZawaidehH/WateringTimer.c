@@ -6,7 +6,10 @@
  */
 
 
-#include "msp.h"
+#include <msp.h>
+#include "Pump.h"
+#include "WateringTimer.h"
+#include "Time.h"
 
 /*  Timer Configuration Variables:
  *
@@ -33,6 +36,18 @@ typedef struct{
 }TimerSettings;
 
 void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange);
+void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange){
+    long long totalTicks=0;
+    int ticks_s = TimerA3Clock; //ticks per second
+    int ticks_ms = 0.001*ticks_s;
+    int ticks_m =60*ticks_s;
+    int ticks_h = 60*ticks_h;
+    int ticks_d = 24*ticks_h;
+    totalTicks = (*time->ms *(ticks_ms))+ (*time->s *(ticks_s))+ (*time->h *(ticks_h)) + (*time->d *(ticks_d));
+    additionalTicks = totalTicks%(2^16);
+    fullRunCount = (totalTicks-additionalTicks)/(2^16);
+
+}
 
 
 typedef struct{
@@ -53,7 +68,7 @@ typedef struct { //The KING
     TimerSettings WateringSettings;
     TimerSettings WaitingSettings;
     TimerValues   ActiveValues;
-    PumpInfo    *Pump;
+    extern PumpInfo *Pump;
 }TimerData;
 
 

@@ -8,13 +8,13 @@
 #include "Time.h"
 #include <stdio.h>
 
-typedef struct {
-    unsigned short day;
-    unsigned char hr;
-    unsigned char min;
-    unsigned char sec;
-    unsigned short ms;
-}TimeLength;
+//typedef struct {
+//    unsigned short day;
+//    unsigned char hr;
+//    unsigned char min;
+//    unsigned char sec;
+//    unsigned short ms;
+//}TimeLength;
 
 TimeLength stringToTime(String inputTime);
 
