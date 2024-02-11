@@ -78,6 +78,12 @@ typedef struct { //The KING
 
 
 void initWateringTimer(void);
+void initWateringTimer(){
+    //TODO fix cstl1 line to set smclk correctly
+    CSCTL1->SELS=0b001; //set SMCLK source to VLOCLK
+   // TIMER_A3->CTL|
+}
+
 
 //concludes a full timer run cycle (0xFFFF), decrements currentFullRunCount and begins final run or switches state if needed
 void completeFullRunTasks_interrupt(TimerData *timer);
@@ -109,5 +115,5 @@ void recalculateActiveValues(TimerData *timer);
 
 void TA3_0_IRQHandler(void);
 void TA3_N_IRQHandler(void);
-__enable_irq(); //enable global interrupt
+//__enable_irq(); //enable global interrupt
 
