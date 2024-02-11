@@ -81,7 +81,21 @@ void initWateringTimer(void);
 void initWateringTimer(){
     //TODO fix cstl1 line to set smclk correctly
     CSCTL1->SELS=0b001; //set SMCLK source to VLOCLK
-   // TIMER_A3->CTL|
+
+    /*
+     * Bits 9-8 (0b10) smclk, 7-6(0b11) div 8, 5-4 (0b10)cont mode,
+     * 3- reserved, 2(0b1) clear,
+     * 1 (0b1) TAIFG interrupt enables, 0(0b0) TAIF no interrupt pending
+     */
+    TIMER_A3->CTL|=0x2E6; //0b1011100110
+    TIMER_A3->EX0|=0b111; //divide by 8
+
+    TIMER_A3->CCTL[0] = 0b0;
+    TIMER_A3->CCTL[1] = 0b0;
+    TIMER_A3->CCTL[2] = 0b0;
+    TIMER_A3->CCTL[3] = 0b0;
+    TIMER_A3->CCTL[4] = 0b0;
+
 }
 
 
@@ -110,6 +124,10 @@ void startTimerCycle_interrupt(TimerData *timer);
  * using the current timer location, use the proper offset for desired time length, be able to refer to correct register to get current number of ticks
  */
 void recalculateActiveValues(TimerData *timer);
+void recalculateActiveValues(TimerData *timer){
+
+}
+
 
 #define WTimerCounterRegister TIMER_A3->R
 
