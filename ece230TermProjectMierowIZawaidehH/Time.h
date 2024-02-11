@@ -16,5 +16,7 @@ typedef struct {
     unsigned short ms;
 }TimeLength;
 
+void stringToTime(char *inputStr, TimeLength *time);
+void timeToString (char *Buffer, TimeLength *time, _Bool addFiller);
 
 #endif /* TIME_H_ */

@@ -17,10 +17,6 @@
 //}TimeLength;
 
 
-
-void stringToTime(char *inputStr, TimeLength *time);
-void timeToString (char *Buffer, TimeLength *time, _Bool addFiller);
-
 /* This buffer must have room for at least 25 characters including null
  *
  * "5d 2h 30m 20s 380ms"      - addFiller=0
@@ -157,7 +153,7 @@ void stringToTime(char *inputStr, TimeLength *time){
             break;
         }
 
-        i++; go to next character
+        i++; //go to next character
     }
 }
 
