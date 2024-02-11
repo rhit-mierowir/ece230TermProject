@@ -119,10 +119,10 @@ void completePartialRunTasks_interrupt(TimerData *timer);
 /*
  * Will initiate final run and set ccr value to appropriate value
  */
+#define DELTA = 2
 void initFinalRun_interrupt(TimerData *timer);
 void initFinalRun_interrupt(TimerData *timer){
-    //TODO change 2 (margin of error) to a constant no magic numeros
-    if(*timer->ActiveValues->finalRunTicks<=2){
+    if(*timer->ActiveValues->finalRunTicks<=DELTA){
         completePartialRunTasks_interrupt(*timer);
     }else{
         //enable TAxCCTLy CCIFG for the particular pump
