@@ -43,7 +43,11 @@ void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange)
     int ticks_m =60*ticks_s;
     int ticks_h = 60*ticks_h;
     int ticks_d = 24*ticks_h;
-    totalTicks = (*time->ms *(ticks_ms))+ (*time->s *(ticks_s))+ (*time->h *(ticks_h)) + (*time->d *(ticks_d));
+    totalTicks = (*time->ms *(ticks_ms))+
+            (*time->sec *(ticks_s))+
+            (*time->hr *(ticks_h)) +
+            (*time->min)*(ticks_m)+
+            (*time->day *(ticks_d));
     additionalTicks = totalTicks%(2^16);
     fullRunCount = (totalTicks-additionalTicks)/(2^16);
 
