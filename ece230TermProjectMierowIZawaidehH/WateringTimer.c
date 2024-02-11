@@ -119,13 +119,24 @@ void initFinalRun_interrupt(TimerData *timer);
  * Toggle pump, switch active state of timer and pump (wait<-->water), switch timer mode, recalculate  active values for next run
  */
 void startTimerCycle_interrupt(TimerData *timer);
+void startTimerCycle_interrupt(TimerData *timer){
+    togglePump(*timer->Pump); //toggle pump status
+    if(*timer->Pump->IsActive){
+        recalculateActiveValues(*timer->WateringSettings, *timer->ActiveValues);
+
+    }else{
+        recalculateActiveValues(*timer->WaitingSettings, *timer->ActiveValues);
+    }
+
+}
 
 /*
  * using the current timer location, use the proper offset for desired time length, be able to refer to correct register to get current number of ticks
  */
 void recalculateActiveValues(TimerSettings *length, TimerValues *valuesToChange);
 void recalculateActiveValues(TimerSettings *length, TimerValues *valuesToChange){
-    int currentTicks = TIMER_A3->R;
+    //int currentTicks = TIMER_A3->R;
+    int currentTicks = *WTimerCounterRegister;
     if(0xFFFF-currentTicks< (*length->additionalTicks)){
         *valuesToChange->fullRunsRemaining=*length->fullRunCount+1;
         *valuesToChange->finalRunTicks = *length->additionalTicks -(0xFFFF-currentTicks);
