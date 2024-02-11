@@ -18,9 +18,11 @@ typedef struct {
 
 TimeLength stringToTime(String inputTime);
 
-String timeToString (TimeLength inputTime){
+char Buffer[20];
+
+timeToString (TimeLength inputTime, ){
     char timeStr[20];
-    sprintf(timeStr, "%dd%dh%dm%s%ms",day,hr,min,sec,ms);
+    sprintf(timeStr, "%dd%dh%dm%s%ms",TimeLength.day,TimeLength.hr,TimeLength.min,TimeLength.sec,TimeLength.ms);
     return timeStr;
 }
 

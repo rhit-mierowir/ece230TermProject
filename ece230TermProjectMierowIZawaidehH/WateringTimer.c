@@ -22,7 +22,6 @@
 TimeLength Timer1WaitLength;
 TimeLength Timer1WateringLength;
 
-void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange);
 
 /* Timer Tick Objects:
  *
@@ -34,6 +33,9 @@ typedef struct{
     unsigned int fullRunCount; //how many full runs we need
     unsigned short additionalTicks; // number of extra ticks for final run (this will not be a complete run)
 }TimerSettings;
+
+void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange);
+
 
 typedef struct{
     unsigned volatile int fullRunsRemaining; //variable that counts down from fullRunCount and holds number of full runs left
