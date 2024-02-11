@@ -20,7 +20,7 @@ TimeLength stringToTime(String inputTime);
 
 char Buffer[20];
 
-timeToString (TimeLength inputTime, ){
+void timeToString (TimeLength inputTime, ){
     char timeStr[20];
     sprintf(timeStr, "%dd%dh%dm%s%ms",TimeLength.day,TimeLength.hr,TimeLength.min,TimeLength.sec,TimeLength.ms);
     return timeStr;

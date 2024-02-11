@@ -31,6 +31,7 @@ typedef struct{
 //Initialize all 5 pumps within this class (see below function), use extern to grab individual pumps
 void initAllPumps();
 
+// Act on individual pumps.
 void initPump(PumpInfo *pump);
 void togglePump(PumpInfo *pump);
 void turnOffPump(PumpInfo *pump);

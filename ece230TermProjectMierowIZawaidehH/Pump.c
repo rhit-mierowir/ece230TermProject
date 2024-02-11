@@ -44,12 +44,12 @@ int pumpCount = sizeof(allPumps)/sizeof(allPumps[0]);
 void initAllPumps(){
     int i;
     for(i=0; i<pumpCount;i++){
-        initializePump((allPumps[i]));
+        initPump((allPumps[i]));
     }
 }
 
 void initPump(PumpInfo *pump){
-    PUMP_PORT->DIR &= ~(pump->Mask); //set direction to 0 - output
+    PUMP_PORT->DIR |= (pump->Mask); //set direction to 1 - output
     PUMP_PORT->SEL0 &= ~(pump->Mask); //set function select to 00 - I/O
     PUMP_PORT->SEL1 &= ~(pump->Mask); //set function select to 00 - I/O
 

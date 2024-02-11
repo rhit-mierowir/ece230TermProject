@@ -15,6 +15,7 @@ void main(void)
 
 	initAllPumps();
 
-	turnOnPump(Pump1);
-	togglePump(Pump2);
+	turnOnPump(&Pump1);
+	togglePump(&Pump2);
+	while(1);
 }
