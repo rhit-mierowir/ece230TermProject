@@ -5,6 +5,9 @@
  *      Author: zawaidhm
  */
 
+
+#include "msp.h"
+
 /*  Timer Configuration Variables:
  *
  *  The number of the timer is the number of the watering system that is should be watering
@@ -16,6 +19,8 @@
  */
 TimeLength Timer1WaitLength;
 TimeLength Timer1WateringLength;
+
+void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange);
 
 /* Timer Tick Objects:
  *
@@ -33,15 +38,55 @@ typedef struct{
     unsigned volatile short finalRunTicks; // stores the number that we are comparing against in our final run to know when to interrupt the timer
 }TimerValues;
 
-typedef struct {
+typedef struct{
+    uint16_t *CCR; //CCR register - allows us to update CCRy value for specific timer
+    uint16_t *CCTL; //CCTL timer of specific timer
+    uint16_t InterruptMask; //specify bit that sets timer interrupt (specific timer) - bit interrupt is in to reset it [set compare capture interrupt flag]
+    uint16_t InterruptEnableMask; // CCIE
+}TimerRegister;
+
+
+typedef struct { //The KING
+    TimerRegister Reg;
     TimerSettings WateringSettings;
     TimerSettings WaitingSettings;
-    TimerValues ActiveValues;
-}TimerInformation;
+    TimerValues   ActiveValues;
+    PumpInfo    *Pump;
+}TimerData;
 
 
 
 void initWateringTimer(void);
 
+//concludes a full timer run cycle (0xFFFF), decrements currentFullRunCount and begins final run or switches state if needed
+void completeFullRunTasks_interrupt(TimerData *timer);
 
+
+
+//concludes the final run (partial cycle),
+void completePartialRunTasks_interrupt(TimerData *timer);
+
+
+//initiate final run timer, enables CCR, CCIFG, (CCIE flag needed?)
+/*
+ * Will initiate final run and set ccr value to appropriate value
+ */
+void initFinalRun_interrupt(TimerData *timer);
+
+
+/*
+ * Toggle pump, switch active state of timer and pump (wait<-->water), switch timer mode, recalculate  active values for next run
+ */
+void startTimerCycle_interrupt(TimerData *timer);
+
+/*
+ * using the current timer location, use the proper offset for desired time length, be able to refer to correct register to get current number of ticks
+ */
+void recalculateActiveValues(TimerData *timer);
+
+#define WTimerCounterRegister TIMER_A3->R
+
+void TA3_0_IRQHandler(void);
+void TA3_N_IRQHandler(void);
+__enable_irq(); //enable global interrupt
 
