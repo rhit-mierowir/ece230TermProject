@@ -6,7 +6,10 @@
  */
 
 
-#include "msp.h"
+#include <msp.h>
+#include "Pump.h"
+#include "WateringTimer.h"
+#include "Time.h"
 
 /*  Timer Configuration Variables:
  *
@@ -20,7 +23,6 @@
 TimeLength Timer1WaitLength;
 TimeLength Timer1WateringLength;
 
-void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange);
 
 /* Timer Tick Objects:
  *
@@ -32,6 +34,25 @@ typedef struct{
     unsigned int fullRunCount; //how many full runs we need
     unsigned short additionalTicks; // number of extra ticks for final run (this will not be a complete run)
 }TimerSettings;
+
+void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange);
+void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange){
+    long long totalTicks=0;
+    int ticks_s = TimerA3Clock; //ticks per second
+    int ticks_ms = 0.001*ticks_s;
+    int ticks_m =60*ticks_s;
+    int ticks_h = 60*ticks_h;
+    int ticks_d = 24*ticks_h;
+    totalTicks = (*time->ms *(ticks_ms))+
+            (*time->sec *(ticks_s))+
+            (*time->hr *(ticks_h)) +
+            (*time->min)*(ticks_m)+
+            (*time->day *(ticks_d));
+    additionalTicks = totalTicks%(2^16);
+    fullRunCount = (totalTicks-additionalTicks)/(2^16);
+
+}
+
 
 typedef struct{
     unsigned volatile int fullRunsRemaining; //variable that counts down from fullRunCount and holds number of full runs left
@@ -51,7 +72,7 @@ typedef struct { //The KING
     TimerSettings WateringSettings;
     TimerSettings WaitingSettings;
     TimerValues   ActiveValues;
-    PumpInfo    *Pump;
+    extern PumpInfo *Pump;
 }TimerData;
 
 
