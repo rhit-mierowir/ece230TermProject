@@ -89,6 +89,8 @@ typedef struct { //The KING
 void initWateringTimer(void);
 void initWateringTimer(){
     //TODO fix cstl1 line to set smclk correctly
+
+    //TODO use config clock function
     CSCTL1->SELS=0b001; //set SMCLK source to VLOCLK
 
     /*
