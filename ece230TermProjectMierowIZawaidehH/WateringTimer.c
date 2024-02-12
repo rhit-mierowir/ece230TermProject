@@ -113,7 +113,19 @@ void completeFullRunTasks_interrupt(TimerData *timer){
 
 //concludes the final run (partial cycle),
 void completePartialRunTasks_interrupt(TimerData *timer);
+void completePartialRunTasks_interrupt(TimerData *timer){
+    *timer->Reg->CCTL&= ~(timer->Reg->InterruptMask);// clear flag
+    startTimerCycle_interrupt(*timer);
+    if(*timer->ActiveValues->fullRunsRemaining==0){
+        //enable TAxCCTLy CCIFG for the particular pump
+        *timer->Reg->CCTL|= *timer->Reg->InterruptEnableMask;
+        //TAxCCRy = finalRunTicks
+        *timer->Reg->CCR=*timer->ActiveValues->finalRunTicks;
+    }else{
+        *timer->Reg->CCTL&= ~(timer->Reg->InterruptEnableMask); //turn off enable
+    }
 
+}
 
 //initiate final run timer, enables CCR, CCIFG, (CCIE flag needed?)
 /*
