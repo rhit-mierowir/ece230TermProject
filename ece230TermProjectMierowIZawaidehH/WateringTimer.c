@@ -98,31 +98,34 @@ void initWateringTimer(){
 
 }
 
+#define DELTA 2
 
 //concludes a full timer run cycle (0xFFFF), decrements currentFullRunCount and begins final run or switches state if needed
 void completeFullRunTasks_interrupt(TimerData *timer);
 void completeFullRunTasks_interrupt(TimerData *timer){
-    *timer->ActiveValues->fullRunsRemaining--;
-//    if(*timer->ActiveValues->fullRunsRemaining==0){
-//        if(*timer->ActiveValues->finalRunTicks<=2){
-//
-//        }
-//    }
+    timer->ActiveValues->fullRunsRemaining--;
+    if(timer->ActiveValues->fullRunsRemaining==0){
+        if((timer->ActiveValues->finalRunTicks)<= DELTA){
+            startTimerCycle(timer);
+        }else{
+            initFinalRun_interrupt(timer);
+        }//end else
+    }//end if
 }
 
 
 //concludes the final run (partial cycle),
 void completePartialRunTasks_interrupt(TimerData *timer);
 void completePartialRunTasks_interrupt(TimerData *timer){
-    *timer->Reg->CCTL&= ~(timer->Reg->InterruptMask);// clear flag
-    startTimerCycle_interrupt(*timer);
-    if(*timer->ActiveValues->fullRunsRemaining==0){
+    timer->Reg->CCTL&= ~(timer->Reg->InterruptMask);// clear flag
+    startTimerCycle_interrupt(timer);
+    if(timer->ActiveValues->fullRunsRemaining==0){
         //enable TAxCCTLy CCIFG for the particular pump
-        *timer->Reg->CCTL|= *timer->Reg->InterruptEnableMask;
+        timer->Reg->CCTL|= timer->Reg->InterruptEnableMask;
         //TAxCCRy = finalRunTicks
-        *timer->Reg->CCR=*timer->ActiveValues->finalRunTicks;
+        timer->Reg->CCR=timer->ActiveValues->finalRunTicks;
     }else{
-        *timer->Reg->CCTL&= ~(timer->Reg->InterruptEnableMask); //turn off enable
+        timer->Reg->CCTL&= ~(timer->Reg->InterruptEnableMask); //turn off enable
     }
 
 }
@@ -131,17 +134,13 @@ void completePartialRunTasks_interrupt(TimerData *timer){
 /*
  * Will initiate final run and set ccr value to appropriate value
  */
-#define DELTA = 2
+
 void initFinalRun_interrupt(TimerData *timer);
 void initFinalRun_interrupt(TimerData *timer){
-    if(*timer->ActiveValues->finalRunTicks<=DELTA){
-        completePartialRunTasks_interrupt(*timer);
-    }else{
         //enable TAxCCTLy CCIFG for the particular pump
-        *timer->Reg->CCTL|= *timer->Reg->InterruptEnableMask;
+        timer->Reg->CCTL|= timer->Reg->InterruptEnableMask;
         //TAxCCRy = finalRunTicks
-        *timer->Reg->CCR=*timer->ActiveValues->finalRunTicks;
-
+        timer->Reg->CCR=timer->ActiveValues->finalRunTicks;
     }
 }
 
@@ -150,12 +149,13 @@ void initFinalRun_interrupt(TimerData *timer){
  */
 void startTimerCycle_interrupt(TimerData *timer);
 void startTimerCycle_interrupt(TimerData *timer){
-    togglePump(*timer->Pump); //toggle pump status
-    if(*timer->Pump->IsActive){
-        recalculateActiveValues(*timer->WateringSettings, *timer->ActiveValues);
+    togglePump(timer->Pump); //toggle pump status
+    //is active stores pump status for next run
+    if(timer->Pump->IsActive){
+        recalculateActiveValues(timer->WateringSettings, timer->ActiveValues);
 
     }else{
-        recalculateActiveValues(*timer->WaitingSettings, *timer->ActiveValues);
+        recalculateActiveValues(timer->WaitingSettings, timer->ActiveValues);
     }
 
 }
@@ -166,13 +166,15 @@ void startTimerCycle_interrupt(TimerData *timer){
 void recalculateActiveValues(TimerSettings *length, TimerValues *valuesToChange);
 void recalculateActiveValues(TimerSettings *length, TimerValues *valuesToChange){
     //int currentTicks = TIMER_A3->R;
-    int currentTicks = *WTimerCounterRegister;
-    if(0xFFFF-currentTicks< (*length->additionalTicks)){
-        *valuesToChange->fullRunsRemaining=*length->fullRunCount+1;
-        *valuesToChange->finalRunTicks = *length->additionalTicks -(0xFFFF-currentTicks);
+    int currentTicks = WTimerCounterRegister;
+    //if not enough additional ticks left before completing full run
+    if(0xFFFF-currentTicks< (length->additionalTicks)){
+        valuesToChange->fullRunsRemaining= length->fullRunCount+1;
+        valuesToChange->finalRunTicks = length->additionalTicks -(0xFFFF-currentTicks);
+   //if can just add additional ticks to current tick count without overflow.
     }else{
-        *valuesToChange->fullRunsRemaining=*length->fullRunCount;
-        *valuesToChange->finalRunTicks = *length->additionalTicks + currentTicks;
+        valuesToChange->fullRunsRemaining=length->fullRunCount;
+        valuesToChange->finalRunTicks = length->additionalTicks + currentTicks;
     }
 }
 
