@@ -17,6 +17,44 @@
 //}TimeLength;
 
 
+/* addTimeRollover(TimeLength *time, unsigned long count, TimeDesignator td)
+ * *time: Adds time to the time object pointed to by *time
+ * count: adds the number of the time increment specified by count
+ * td:    the time increment needed
+ */
+void addTimeRollover(TimeLength *time, unsigned long count, TimeDesignator td){
+    if (count == 0){
+        return; //return if there is no time change.
+    }
+    switch(td){
+    case day:
+        time->day += count;
+        return;
+    case hr:
+        count += time->hr;
+        time->hr = count % 24; //24 hr = a day
+        addTimeRollover(time,count/24,day); // integer division give remaining number of time
+        return;
+    case min:
+        count += time->min;
+        time->min = count % 60; //60 mins = 1hr
+        addTimeRollover(time,count/60,hr);//int div, store hours
+        return;
+    case sec:
+        count += time->sec;
+        time->sec = count % 60; //60 sec = 1 min
+        addTimeRollover(time,count/60,min);
+        return;
+    case ms:
+        count += time->ms;
+        time->ms = count % 1000; // 1000 ms = 1 sec
+        addTimeRollover(time,count/1000,sec);
+        return;
+    default:
+        return;
+    }
+}
+
 /* This buffer must have room for at least 25 characters including null
  *
  * "5d 2h 30m 20s 380ms"      - addFiller=0
@@ -51,12 +89,11 @@ void timeToString (char *Buffer, TimeLength *time, _Bool addFiller){
  * These prefixes don't have to be given in a specific order.
  * All non-number and non-Time Designator characters are ignored.
  * If no time prefixes a designator, it assumes 0.
- * If no time designator is given, it assigns 0.
- * The last instance of a specific time designator is the value
- * the TimeLenght object retains.
- *
+ * If no time designator is given after it, it ignores the number.
+ * If there are multiple instances of a time designator, it adds to the previous values assigned.
  */
 void stringToTime(char *inputStr, TimeLength *time){
+    //clear time
     time->day = 0;
     time->hr = 0;
     time->min = 0;
@@ -64,7 +101,7 @@ void stringToTime(char *inputStr, TimeLength *time){
     time->ms = 0;
 
     //Used to build numbers before stored in time
-    unsigned int numBuilding= 0;
+    unsigned long numBuilding= 0;
     //Used to check for ms time designator
     _Bool checkForMS = 0;
 
@@ -77,7 +114,7 @@ void stringToTime(char *inputStr, TimeLength *time){
         case '\0':
             if (checkForMS){
                 //the 'm' character not part of 'ms'
-                time->min = numBuilding;
+                addTimeRollover(time,numBuilding, min);
             }
             return;
             break;
@@ -88,25 +125,25 @@ void stringToTime(char *inputStr, TimeLength *time){
         case 'd':
             if (checkForMS){
                 //the 'm' character not part of 'ms'
-                time->min = numBuilding;
+                addTimeRollover(time,numBuilding, min);
                 checkForMS = 0; numBuilding = 0;
             }
-            time->day = numBuilding;
+            addTimeRollover(time,numBuilding, day);
             numBuilding = 0;
             break;
         case 'h':
             if (checkForMS){
                 //the 'm' character not part of 'ms'
-                time->min = numBuilding;
+                addTimeRollover(time,numBuilding, min);
                 checkForMS = 0; numBuilding = 0;
             }
-            time->hr = numBuilding;
+            addTimeRollover(time,numBuilding, hr);
             numBuilding = 0;
             break;
         case 'm':
             if (checkForMS){
                 //the 'm' character not part of 'ms'
-                time->min = numBuilding;
+                addTimeRollover(time,numBuilding, min);
                 checkForMS = 0; numBuilding = 0;
             }
             // next loop figure out if this is 'm' or start of 'ms'
@@ -115,10 +152,10 @@ void stringToTime(char *inputStr, TimeLength *time){
         case 's':
             if (checkForMS){
                 // time designator was 'ms'
-                time->ms = numBuilding;
+                addTimeRollover(time,numBuilding, ms);
             } else {
                 // time designator was 's'
-                time->sec = numBuilding;
+                addTimeRollover(time,numBuilding, sec);
             }
             checkForMS = 0;
             numBuilding = 0;
@@ -136,16 +173,21 @@ void stringToTime(char *inputStr, TimeLength *time){
         case '7':
         case '8':
         case '9':
-            numBuilding = numBuilding*10 + (inputStr[1] & 0xF);
-
-            //Continue into the default case do stuff there too.
-            // we also need to do checkForMS
+            // we also need to do checkForMS, incase '2m532s ...'
+            if (checkForMS){
+                //the 'm' character not part of 'ms'
+                addTimeRollover(time,numBuilding, min);
+                numBuilding = 0;
+                checkForMS = 0;
+            }
+            numBuilding = numBuilding*10 + (inputStr[i] & 0xF);
+            break;
 
         //nothing special recognized
         default:
             if (checkForMS){
                 //the 'm' character not part of 'ms'
-                time->min = numBuilding;
+                addTimeRollover(time,numBuilding, min);
                 numBuilding = 0;
                 checkForMS = 0;
             }
@@ -156,8 +198,3 @@ void stringToTime(char *inputStr, TimeLength *time){
         i++; //go to next character
     }
 }
-
-// 5d2h30m20s380ms
-// 5  <- d
-// 2  <- h
-// 3 0 <- m

@@ -37,15 +37,29 @@ void main(void)
 	debounce();
 	debounce();
 
-	printf("hello world!");
+	printf("hello world!\r\n");
 	timeToString(buffer,&testTime,1);
 	printf(buffer);
-	timeToString(buffer,&testTime,0);
+	printf("\r\n");
+	testTime.hr = 6;
+	timeToString(buffer,&testTime,1);
 	printf(buffer);
+	printf("\r\n");
 
-	stringToTime("5d 3m 4s",&testTime);
+	stringToTime("5d 03m 9s 14ms",&testTime);
+    timeToString(buffer,&testTime,1);
+    printf(buffer);
+    printf("\r\n");
+
+	stringToTime("5d 03m 90s 1004ms",&testTime);
 	timeToString(buffer,&testTime,1);
 	printf(buffer);
+	printf("\r\n");
+
+	stringToTime("17520h 45m34",&testTime);
+    timeToString(buffer,&testTime,1);
+    printf(buffer);
+    printf("\r\n");
 
 
 	//initAllPumps();
