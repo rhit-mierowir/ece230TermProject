@@ -41,15 +41,15 @@ void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange)
     int ticks_s = TimerA3Clock; //ticks per second
     int ticks_ms = 0.001*ticks_s;
     int ticks_m =60*ticks_s;
-    int ticks_h = 60*ticks_h;
+    int ticks_h = 60*ticks_m;
     int ticks_d = 24*ticks_h;
-    totalTicks = (*time->ms *(ticks_ms))+
-            (*time->sec *(ticks_s))+
-            (*time->hr *(ticks_h)) +
-            (*time->min)*(ticks_m)+
-            (*time->day *(ticks_d));
-    additionalTicks = totalTicks%(2^16);
-    fullRunCount = (totalTicks-additionalTicks)/(2^16);
+    totalTicks = (time->ms *(ticks_ms))+
+            (time->sec *(ticks_s))+
+            (time->hr *(ticks_h)) +
+            (time->min)*(ticks_m)+
+            (time->day *(ticks_d));
+    settingToChange->additionalTicks = totalTicks%(2^16);
+    settingToChange->additionalTicks = (totalTicks-settingToChange->additionalTicks)/(2^16);
 
 }
 
@@ -60,12 +60,19 @@ typedef struct{
 }TimerValues;
 
 typedef struct{
-    uint16_t *CCR; //CCR register - allows us to update CCRy value for specific timer
-    uint16_t *CCTL; //CCTL timer of specific timer
+    volatile uint16_t *CCR; //CCR register - allows us to update CCRy value for specific timer
+    volatile uint16_t *CCTL; //CCTL timer of specific timer
     uint16_t InterruptMask; //specify bit that sets timer interrupt (specific timer) - bit interrupt is in to reset it [set and reset compare capture interrupt flag]
     uint16_t InterruptEnableMask; // CCIE -  enable and disable interrupt
 }TimerRegister;
-
+//
+//TimerRegister tmp = {
+//  .CCTL = &(TIMER_A3->CCTL[3])
+//
+//};
+//void func(){
+//*(tmp.CCTL) = 5;
+//}
 
 typedef struct { //The KING
     TimerRegister Reg;
@@ -74,6 +81,7 @@ typedef struct { //The KING
     TimerValues   ActiveValues;
     extern PumpInfo *Pump;
 }TimerData;
+
 
 
 
@@ -97,39 +105,24 @@ void initWateringTimer(){
     TIMER_A3->CCTL[4] = 0b0;
 
 }
+#define WTimerCounterRegister TIMER_A3->R
 
 
-//concludes a full timer run cycle (0xFFFF), decrements currentFullRunCount and begins final run or switches state if needed
-void completeFullRunTasks_interrupt(TimerData *timer);
-void completeFullRunTasks_interrupt(TimerData *timer){
-    *timer->ActiveValues->fullRunsRemaining--;
-//    if(*timer->ActiveValues->fullRunsRemaining==0){
-//        if(*timer->ActiveValues->finalRunTicks<=2){
-//
-//        }
-//    }
-}
-
-
-//concludes the final run (partial cycle),
-void completePartialRunTasks_interrupt(TimerData *timer);
-
-
-//initiate final run timer, enables CCR, CCIFG, (CCIE flag needed?)
 /*
- * Will initiate final run and set ccr value to appropriate value
+ * using the current timer location, use the proper offset for desired time length, be able to refer to correct register to get current number of ticks
  */
-#define DELTA = 2
-void initFinalRun_interrupt(TimerData *timer);
-void initFinalRun_interrupt(TimerData *timer){
-    if(*timer->ActiveValues->finalRunTicks<=DELTA){
-        completePartialRunTasks_interrupt(*timer);
+void recalculateActiveValues(TimerSettings *length, TimerValues *valuesToChange);
+void recalculateActiveValues(TimerSettings *length, TimerValues *valuesToChange){
+    //int currentTicks = TIMER_A3->R;
+    int currentTicks = WTimerCounterRegister;
+    //if not enough additional ticks left before completing full run
+    if(0xFFFF-currentTicks< (length->additionalTicks)){
+        valuesToChange->fullRunsRemaining= length->fullRunCount+1;
+        valuesToChange->finalRunTicks = length->additionalTicks -(0xFFFF-currentTicks);
+   //if can just add additional ticks to current tick count without overflow.
     }else{
-        //enable TAxCCTLy CCIFG for the particular pump
-        *timer->Reg->CCTL|= *timer->Reg->InterruptEnableMask;
-        //TAxCCRy = finalRunTicks
-        *timer->Reg->CCR=*timer->ActiveValues->finalRunTicks;
-
+        valuesToChange->fullRunsRemaining=length->fullRunCount;
+        valuesToChange->finalRunTicks = length->additionalTicks + currentTicks;
     }
 }
 
@@ -138,34 +131,64 @@ void initFinalRun_interrupt(TimerData *timer){
  */
 void startTimerCycle_interrupt(TimerData *timer);
 void startTimerCycle_interrupt(TimerData *timer){
-    togglePump(*timer->Pump); //toggle pump status
-    if(*timer->Pump->IsActive){
-        recalculateActiveValues(*timer->WateringSettings, *timer->ActiveValues);
+    togglePump(timer->Pump); //toggle pump status
+    //is active stores pump status for next run
+    if(timer->Pump->IsActive){
+        recalculateActiveValues(timer->WateringSettings, timer->ActiveValues);
 
     }else{
-        recalculateActiveValues(*timer->WaitingSettings, *timer->ActiveValues);
+        recalculateActiveValues(timer->WaitingSettings, timer->ActiveValues);
     }
 
 }
 
+
+
+//concludes the final run (partial cycle),
+void completePartialRunTasks_interrupt(TimerData *timer);
+void completePartialRunTasks_interrupt(TimerData *timer){
+    timer->Reg.CCTL&= ~(timer->Reg.InterruptMask);// clear flag
+    startTimerCycle_interrupt(timer);
+    if(timer->ActiveValues.fullRunsRemaining==0){
+        //enable TAxCCTLy CCIFG for the particular pump
+        timer->Reg.CCTL|= timer->Reg.InterruptEnableMask;
+        //TAxCCRy = finalRunTicks
+        timer->Reg.CCR=timer->ActiveValues.finalRunTicks;
+    }else{
+        timer->Reg.CCTL&= ~(timer->Reg.InterruptEnableMask); //turn off enable
+    }
+
+}
+
+//initiate final run timer, enables CCR, CCIFG, (CCIE flag needed?)
 /*
- * using the current timer location, use the proper offset for desired time length, be able to refer to correct register to get current number of ticks
+ * Will initiate final run and set ccr value to appropriate value
  */
-void recalculateActiveValues(TimerSettings *length, TimerValues *valuesToChange);
-void recalculateActiveValues(TimerSettings *length, TimerValues *valuesToChange){
-    //int currentTicks = TIMER_A3->R;
-    int currentTicks = *WTimerCounterRegister;
-    if(0xFFFF-currentTicks< (*length->additionalTicks)){
-        *valuesToChange->fullRunsRemaining=*length->fullRunCount+1;
-        *valuesToChange->finalRunTicks = *length->additionalTicks -(0xFFFF-currentTicks);
-    }else{
-        *valuesToChange->fullRunsRemaining=*length->fullRunCount;
-        *valuesToChange->finalRunTicks = *length->additionalTicks + currentTicks;
-    }
+
+void initFinalRun_interrupt(TimerData *timer);
+void initFinalRun_interrupt(TimerData *timer){
+    //enable TAxCCTLy CCIFG for the particular pump
+    timer->Reg.CCTL|= timer->Reg.InterruptEnableMask;
+    //TAxCCRy = finalRunTicks
+    timer->Reg.CCR=timer->ActiveValues.finalRunTicks;
+}
+
+#define DELTA 2
+
+//concludes a full timer run cycle (0xFFFF), decrements currentFullRunCount and begins final run or switches state if needed
+void completeFullRunTasks_interrupt(TimerData *timer);
+void completeFullRunTasks_interrupt(TimerData *timer){
+    timer->ActiveValues.fullRunsRemaining--;
+    if(timer->ActiveValues.fullRunsRemaining==0){
+        if((timer->ActiveValues.finalRunTicks)<= DELTA){
+            startTimerCycle_interrupt(timer);
+        }else{
+            initFinalRun_interrupt(timer);
+        }//end else
+    }//end if
 }
 
 
-#define WTimerCounterRegister TIMER_A3->R
 
 void TA3_0_IRQHandler(void);
 void TA3_N_IRQHandler(void);
