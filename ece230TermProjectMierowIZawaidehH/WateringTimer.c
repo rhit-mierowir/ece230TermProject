@@ -65,7 +65,8 @@ typedef struct{
     uint16_t InterruptMask; //specify bit that sets timer interrupt (specific timer) - bit interrupt is in to reset it [set and reset compare capture interrupt flag]
     uint16_t InterruptEnableMask; // CCIE -  enable and disable interrupt
 }TimerRegister;
-//
+
+
 //TimerRegister tmp = {
 //  .CCTL = &(TIMER_A3->CCTL[3])
 //
@@ -79,7 +80,7 @@ typedef struct { //The KING
     TimerSettings WateringSettings;
     TimerSettings WaitingSettings;
     TimerValues   ActiveValues;
-    extern PumpInfo *Pump;
+    PumpInfo *Pump;
 }TimerData;
 
 
