@@ -143,24 +143,6 @@ void startTimerCycle_interrupt(TimerData *timer){
 
 }
 
-
-
-//concludes the final run (partial cycle),
-void completePartialRunTasks_interrupt(TimerData *timer);
-void completePartialRunTasks_interrupt(TimerData *timer){
-    *(timer->Reg.CCTL) &= ~(timer->Reg.InterruptMask);// clear flag
-    startTimerCycle_interrupt(timer);
-    if(timer->ActiveValues.fullRunsRemaining==0){
-        //enable TAxCCTLy CCIFG for the particular pump
-        *(timer->Reg.CCTL)|= timer->Reg.InterruptEnableMask;
-        //TAxCCRy = finalRunTicks
-        *(timer->Reg.CCR) =timer->ActiveValues.finalRunTicks;
-    }else{
-        *(timer->Reg.CCTL)&= ~(timer->Reg.InterruptEnableMask); //turn off enable
-    }
-
-}
-
 //initiate final run timer, enables CCR, CCIFG, (CCIE flag needed?)
 /*
  * Will initiate final run and set ccr value to appropriate value
@@ -168,10 +150,33 @@ void completePartialRunTasks_interrupt(TimerData *timer){
 
 void initFinalRun_interrupt(TimerData *timer);
 void initFinalRun_interrupt(TimerData *timer){
+    //clear the interrupt flag.
+    *(timer->Reg.CCTL) &= ~(timer->Reg.InterruptMask);
     //enable TAxCCTLy CCIFG for the particular pump
     *(timer->Reg.CCTL) |= timer->Reg.InterruptEnableMask;
+
+
     //TAxCCRy = finalRunTicks
     *(timer->Reg.CCR) =timer->ActiveValues.finalRunTicks;
+}
+
+
+
+
+//concludes the final run (partial cycle),
+void completePartialRunTasks_interrupt(TimerData *timer);
+void completePartialRunTasks_interrupt(TimerData *timer){
+    *(timer->Reg.CCTL) &= ~(timer->Reg.InterruptMask);// clear interrupt flag
+    startTimerCycle_interrupt(timer);
+    //Check what to do based on newly generated timer settings.
+    if(timer->ActiveValues.fullRunsRemaining==0){
+        // no complete loops necessary
+        initFinalRun_interrupt(timer);
+    }else{
+        // will perform full loops, disable individual interrupt to allow this
+        *(timer->Reg.CCTL)&= ~(timer->Reg.InterruptEnableMask); //turn off enable
+    }
+
 }
 
 #define DELTA 2
