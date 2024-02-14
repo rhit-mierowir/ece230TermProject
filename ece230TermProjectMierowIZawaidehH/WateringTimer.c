@@ -21,9 +21,10 @@
  *  TimerXWateringLength:
  *      This is the length of time the timer will run between telling the Watering System to Start Watering and Stop Watering.
  */
-TimeLength Timer1WaitLength;
-TimeLength Timer1WateringLength;
-
+typedef struct{
+    TimeLength WaitLength;
+    TimeLength WateringLength;
+}TimerDuration;
 
 /* Timer Tick Objects:
  *
@@ -35,6 +36,7 @@ typedef struct{
     unsigned int fullRunCount; //how many full runs we need
     unsigned short additionalTicks; // number of extra ticks for final run (this will not be a complete run)
 }TimerSettings;
+
 
 void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange);
 void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange){
@@ -55,6 +57,8 @@ void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange)
 }
 
 
+
+
 typedef struct{
     unsigned volatile int fullRunsRemaining; //variable that counts down from fullRunCount and holds number of full runs left
     unsigned volatile short finalRunTicks; // stores the number that we are comparing against in our final run to know when to interrupt the timer
@@ -68,23 +72,37 @@ typedef struct{
 }TimerRegister;
 
 
-//TimerRegister tmp = {
-//  .CCTL = &(TIMER_A3->CCTL[3])
-//
-//};
-//void func(){
-//*(tmp.CCTL) = 5;
-//}
 
+
+/* KING STRUCT OUR LORD & SAVIOR lol
+                  .       |         .    .
+            .  *         -*-          *
+                 \        |         /   .
+.    .            .      /^\     .              .    .
+   *    |\   /\    /\  / / \ \  /\    /\   /|    *
+ .   .  |  \ \/ /\ \ / /     \ \ / /\ \/ /  | .     .
+         \ | _ _\/_ _ \_\_ _ /_/_ _\/_ _ \_/
+           \  *  *  *   \ \/ /  *  *  *  /
+            ` ~ ~ ~ ~ ~  ~\/~ ~ ~ ~ ~ ~ '
+ */
 typedef struct { //The KING
     TimerRegister Reg;
+    TimerDuration TimerTimes;
     TimerSettings WateringSettings;
     TimerSettings WaitingSettings;
     TimerValues   ActiveValues;
     PumpInfo *Pump;
 }TimerData;
 
-
+/*
+ * Updates the number of ticks for waiting and watering.
+ * Should be called when the TimeLength is updated
+ */
+void updateTimerTickSettings(TimerData *timer);
+void updateTimerTickSettings(TimerData *timer){
+    convertTimerLengthToTicks(&(timer->TimerTimes.WateringLength),&(timer->WateringSettings));
+    convertTimerLengthToTicks(&(timer->TimerTimes.WaitLength), &(timer->WaitingSettings));
+}
 
 
 void initWateringTimer(void);
