@@ -53,7 +53,7 @@ typedef struct{
 
 
 
-/* KING STRUCT OUR LORD & SAVIOR lol
+/* KING STRUCT
                   .       |         .    .
             .  *         -*-          *
                  \        |         /   .
@@ -73,13 +73,28 @@ typedef struct { //The KING
     PumpInfo *Pump;
 }TimerData;
 
+#define DELTA 2
 #define interruptMask 0b0
 #define interruptEnableMask 0b10
+#define WTimer TIMER_A3
+#define WTimerCounterRegister TIMER_A3->R
+#define Timer0CCR WTimer->CCR[0]
+#define Timer1CCR WTimer->CCR[1]
+#define Timer2CCR WTimer->CCR[2]
+#define Timer3CCR WTimer->CCR[3]
+#define Timer4CCR WTimer->CCR[4]
+#define Timer0CCTL WTimer->CCTL[0]
+#define Timer1CCTL WTimer->CCTL[1]
+#define Timer2CCTL WTimer->CCTL[2]
+#define Timer3CCTL WTimer->CCTL[3]
+#define Timer4CCTL WTimer->CCTL[4]
+
+
 //Declare structs for all timers
 TimerData Timer0 = {
                     .Reg = {
-                        .CCR = &(TIMER_A3->CCR[0]),
-                        .CCTL = &(TIMER_A3->CCTL[0]),
+                        .CCR = &(Timer0CCR),
+                        .CCTL = &(Timer0CCTL),
                         .InterruptMask = interruptMask,
                         .InterruptEnableMask=interruptEnableMask
                         },
@@ -88,32 +103,32 @@ TimerData Timer0 = {
 };
 TimerData Timer1 = {
                     .Reg = {
-                        .CCR = &(TIMER_A3->CCR[1]),
-                        .CCTL = &(TIMER_A3->CCTL[1]),
+                        .CCR = &(Timer1CCR),
+                        .CCTL = &(Timer1CCTL),
                         .InterruptMask = interruptMask,
                         .InterruptEnableMask=interruptEnableMask
                         },
 };
 TimerData Timer2 = {
                     .Reg = {
-                        .CCR = &(TIMER_A3->CCR[2]),
-                        .CCTL = &(TIMER_A3->CCTL[2]),
+                        .CCR = &(Timer2CCR),
+                        .CCTL = &(Timer2CCTL),
                         .InterruptMask = interruptMask,
                         .InterruptEnableMask=interruptEnableMask
                         },
 };
 TimerData Timer3 = {
                     .Reg = {
-                        .CCR = &(TIMER_A3->CCR[3]),
-                        .CCTL = &(TIMER_A3->CCTL[3]),
+                        .CCR = &(Timer3CCR),
+                        .CCTL = &(Timer3CCTL),
                         .InterruptMask = interruptMask,
                         .InterruptEnableMask=interruptEnableMask
                         },
 };
 TimerData Timer4 = {
                     .Reg = {
-                        .CCR = &(TIMER_A3->CCR[4]),
-                        .CCTL = &(TIMER_A3->CCTL[4]),
+                        .CCR = &(Timer4CCR),
+                        .CCTL = &(Timer4CCTL),
                         .InterruptMask = interruptMask,
                         .InterruptEnableMask=interruptEnableMask
                         },
@@ -169,7 +184,6 @@ void initWateringTimer(){
     TIMER_A3->CCTL[4] = 0b0;
 
 }
-#define WTimerCounterRegister TIMER_A3->R
 
 
 /*
@@ -242,7 +256,6 @@ void completePartialRunTasks_interrupt(TimerData *timer){
 
 }
 
-#define DELTA 2
 
 //concludes a full timer run cycle (0xFFFF), decrements currentFullRunCount and begins final run or switches state if needed
 void completeFullRunTasks_interrupt(TimerData *timer);
@@ -258,10 +271,11 @@ void completeFullRunTasks_interrupt(TimerData *timer){
 }
 
 
-//occurs when
 void TA3_0_IRQHandler(void);
 void TA3_0_IRQHandler(void){
-
+    if(*(Timer0.Reg.CCTL) & Timer0.Reg.InterruptMask){
+        completePartialRunTasks_interrupt(&Timer0);
+    }
 }
 
 
@@ -270,8 +284,30 @@ void TA3_N_IRQHandler(void){
     //check if interrupt was caused by completing a full run
     if(TIMER_A3->CTL & TIMER_A_CTL_IFG){
         //handle timer overflow
+        completeFullRunTasks_interrupt(&Timer0);
+        completeFullRunTasks_interrupt(&Timer1);
+        completeFullRunTasks_interrupt(&Timer2);
+        completeFullRunTasks_interrupt(&Timer3);
+        completeFullRunTasks_interrupt(&Timer4);
+
+
+
     }else{
-        if(Timer0->Reg.CCTL & TIMER_A3_CCTLN_CCIFG)
+        if(*(Timer1.Reg.CCTL) & Timer1.Reg.InterruptMask){
+            completePartialRunTasks_interrupt(&Timer1);
+        }
+        if(*(Timer2.Reg.CCTL) & Timer2.Reg.InterruptMask){
+            completePartialRunTasks_interrupt(&Timer2);
+
+        }
+        if(*(Timer3.Reg.CCTL) & Timer3.Reg.InterruptMask){
+            completePartialRunTasks_interrupt(&Timer3);
+
+        }
+        if(*(Timer4.Reg.CCTL) & Timer4.Reg.InterruptMask){
+            completePartialRunTasks_interrupt(&Timer4);
+
+        }
     }
 }
 /*
