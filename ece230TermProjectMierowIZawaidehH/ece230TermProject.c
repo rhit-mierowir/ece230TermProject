@@ -29,13 +29,32 @@ void main(void)
 {
 	WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;		// stop watchdog timer
 
-	TimeLength testTime = {
-	                       .day = 1,
+	TimeLength waitTime = {
+	                       .day = 0,
 	                       .hr = 0,
-	                       .min = 2,
-	                       .sec = 5,
+	                       .min = 0,
+	                       .sec = 10,
 	                       .ms = 12
 	};
+
+    TimeLength waterTime = {
+                           .day = 0,
+                           .hr = 0,
+                           .min = 0,
+                           .sec = 10,
+                           .ms = 0
+    };
+
+    initWateringTimer();
+    initAllPumps();
+    Timer1.TimerTimes.WaitLength=waitTime;
+    Timer1.TimerTimes.WateringLength=waterTime;
+    updateTimerTickSettings(&Timer1);
+
+    //test
+    //completePartialRunTasks_interrupt(&Timer1);
+
+
 
 	char buffer[30];
 

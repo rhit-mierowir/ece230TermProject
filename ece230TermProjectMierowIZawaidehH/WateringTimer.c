@@ -12,6 +12,9 @@
 #include "Time.h"
 #include "csLFXT.h"
 
+
+extern PumpInfo Pump0, Pump1, Pump2, Pump3, Pump4;
+
 //Declare structs for all timers
 TimerData Timer0 = {
                     .Reg = {
@@ -21,7 +24,7 @@ TimerData Timer0 = {
                         .InterruptEnableMask=interruptEnableMask
                         },
                     //let timer times be undeclared.
-                   // .Pump = *allPumps[0]
+                    .Pump = &Pump0
 };
 TimerData Timer1 = {
                     .Reg = {
@@ -30,6 +33,8 @@ TimerData Timer1 = {
                         .InterruptMask = interruptMask,
                         .InterruptEnableMask=interruptEnableMask
                         },
+                        .Pump = &Pump1
+
 };
 TimerData Timer2 = {
                     .Reg = {
@@ -38,6 +43,8 @@ TimerData Timer2 = {
                         .InterruptMask = interruptMask,
                         .InterruptEnableMask=interruptEnableMask
                         },
+                        .Pump = &Pump2
+
 };
 TimerData Timer3 = {
                     .Reg = {
@@ -46,6 +53,8 @@ TimerData Timer3 = {
                         .InterruptMask = interruptMask,
                         .InterruptEnableMask=interruptEnableMask
                         },
+                        .Pump = &Pump3
+
 };
 TimerData Timer4 = {
                     .Reg = {
@@ -54,6 +63,8 @@ TimerData Timer4 = {
                         .InterruptMask = interruptMask,
                         .InterruptEnableMask=interruptEnableMask
                         },
+                        .Pump = &Pump4
+
 };
 
 
@@ -82,6 +93,15 @@ void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange)
 void updateTimerTickSettings(TimerData *timer){
     convertTimerLengthToTicks(&(timer->TimerTimes.WateringLength),&(timer->WateringSettings));
     convertTimerLengthToTicks(&(timer->TimerTimes.WaitLength), &(timer->WaitingSettings));
+    if(timer->Pump->IsActive){
+        recalculateActiveValues((&timer->WateringSettings), &(timer->ActiveValues));
+
+    }else{
+        recalculateActiveValues(&(timer->WaitingSettings), &(timer->ActiveValues));
+    }
+    if(timer->ActiveValues.fullRunsRemaining==0){
+        initFinalRun_interrupt(timer);
+    }
 }
 
 
@@ -101,6 +121,12 @@ void initWateringTimer(){
     TIMER_A3->CCTL[2] = 0b0;
     TIMER_A3->CCTL[3] = 0b0;
     TIMER_A3->CCTL[4] = 0b0;
+
+    NVIC->ISER[0] |= (1)<<TA3_0_IRQn;
+    NVIC->ISER[0] |= (1)<<TA3_N_IRQn;
+
+    __enable_irq(); //enable global interrupt
+
 
 }
 
@@ -158,7 +184,6 @@ void initFinalRun_interrupt(TimerData *timer){
 
 //concludes the final run (partial cycle),
 void completePartialRunTasks_interrupt(TimerData *timer){
-    *(timer->Reg.CCTL) &= ~(timer->Reg.InterruptMask);// clear interrupt flag
     startTimerCycle_interrupt(timer);
     //Check what to do based on newly generated timer settings.
     if(timer->ActiveValues.fullRunsRemaining==0){
@@ -187,6 +212,7 @@ void completeFullRunTasks_interrupt(TimerData *timer){
 
 void TA3_0_IRQHandler(void){
     if(*(Timer0.Reg.CCTL) & Timer0.Reg.InterruptMask){
+        *(Timer0.Reg.CCTL) &= ~(Timer0.Reg.InterruptMask);// clear interrupt flag
         completePartialRunTasks_interrupt(&Timer0);
     }
 }
@@ -201,22 +227,27 @@ void TA3_N_IRQHandler(void){
         completeFullRunTasks_interrupt(&Timer2);
         completeFullRunTasks_interrupt(&Timer3);
         completeFullRunTasks_interrupt(&Timer4);
+        TIMER_A3->CTL &=~TIMER_A_CTL_IFG; //clear interrupt
 
 
 
     }else{
         if(*(Timer1.Reg.CCTL) & Timer1.Reg.InterruptMask){
+            *(Timer1.Reg.CCTL) &= ~(Timer1.Reg.InterruptMask);// clear interrupt flag
             completePartialRunTasks_interrupt(&Timer1);
         }
         if(*(Timer2.Reg.CCTL) & Timer2.Reg.InterruptMask){
+            *(Timer2.Reg.CCTL) &= ~(Timer2.Reg.InterruptMask);// clear interrupt flag
             completePartialRunTasks_interrupt(&Timer2);
 
         }
         if(*(Timer3.Reg.CCTL) & Timer3.Reg.InterruptMask){
+            *(Timer3.Reg.CCTL) &= ~(Timer3.Reg.InterruptMask);// clear interrupt flag
             completePartialRunTasks_interrupt(&Timer3);
 
         }
         if(*(Timer4.Reg.CCTL) & Timer4.Reg.InterruptMask){
+            *(Timer4.Reg.CCTL) &= ~(Timer4.Reg.InterruptMask);// clear interrupt flag
             completePartialRunTasks_interrupt(&Timer4);
 
         }
@@ -229,5 +260,4 @@ void TA3_N_IRQHandler(void){
  *
  */
 
-//__enable_irq(); //enable global interrupt
 

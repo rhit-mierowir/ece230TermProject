@@ -18,7 +18,8 @@ typedef struct{
     const uint16_t Mask;
 }PumpInfo;
 
-#define PUMP_PORT P5
+//#define PUMP_PORT P5
+#define PUMP_PORT P2
 #define PUMP_0_MASK 0b1 << 0
 #define PUMP_1_MASK 0b1 << 1
 #define PUMP_2_MASK 0b1 << 2
