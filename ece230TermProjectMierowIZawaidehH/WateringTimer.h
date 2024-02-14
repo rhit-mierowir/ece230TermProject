@@ -11,8 +11,7 @@
 #include "Pump.h"
 #include "Time.h"
 
-#define SMCLK 9400 //Hz <-- USe VLOCLK (very low power low frequency)
-//TODO set SMCLK source to VLOCLK using SELS 0b001
+#define SMCLK 32000 //Hz <-- USe ACLK
 #define TimerA3Prescaler 64 //8*8
 #define TimerA3Clock SMCLK/TimerA3Prescaler //ticks per second
 #define TimerA3Ticklength = TimerA3Clock^(-1) //seconds per tick

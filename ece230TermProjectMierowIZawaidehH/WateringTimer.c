@@ -88,17 +88,14 @@ typedef struct { //The KING
 
 void initWateringTimer(void);
 void initWateringTimer(){
-    //TODO fix cstl1 line to set smclk correctly
-
-    //TODO use config clock function
-    CSCTL1->SELS=0b001; //set SMCLK source to VLOCLK
-
+    //Configure LFXT to use 32kHz crystal, source to ACLK
+    configLFXT();
     /*
-     * Bits 9-8 (0b10) smclk, 7-6(0b11) div 8, 5-4 (0b10)cont mode,
+     * Bits 9-8 (0b01) aclk, 7-6(0b11) div 8, 5-4 (0b10)cont mode,
      * 3- reserved, 2(0b1) clear,
      * 1 (0b1) TAIFG interrupt enables, 0(0b0) TAIF no interrupt pending
      */
-    TIMER_A3->CTL|=0x2E6; //0b1011100110
+    TIMER_A3->CTL|=0x1E6; //0b0111100110
     TIMER_A3->EX0|=0b111; //divide by 8
 
     TIMER_A3->CCTL[0] = 0b0;
