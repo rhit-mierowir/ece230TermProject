@@ -6,7 +6,7 @@
  */
 
 #include "Time.h"
-#include <stdio.h>
+#include <stdio.h> //sprintf
 
 //typedef struct {
 //    unsigned short day;
