@@ -20,6 +20,8 @@ typedef enum {day,hr,min,sec,ms}TimeDesignator;
 
 void stringToTime(char *inputStr, TimeLength *time);
 void timeToString (char *Buffer, TimeLength *time, _Bool addFiller);
+
+//This is currently more of an internal function. might be uesful.
 void addTimeRollover(TimeLength *time, unsigned long count, TimeDesignator td);
 
 #endif /* TIME_H_ */
