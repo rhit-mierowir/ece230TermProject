@@ -12,84 +12,6 @@
 #include "Time.h"
 #include "csLFXT.h"
 
-/*  Timer Configuration Variables:
- *
- *  The number of the timer is the number of the watering system that is should be watering
- *
- *  TimerXWaitLength:
- *      This is the amount of time the timer will wait between ordering the Watering System to water again.
- *  TimerXWateringLength:
- *      This is the length of time the timer will run between telling the Watering System to Start Watering and Stop Watering.
- */
-typedef struct{
-    TimeLength WaitLength;
-    TimeLength WateringLength;
-}TimerDuration;
-
-/* Timer Tick Objects:
- *
- * These objects are the objects that store the tick information used to operate the timers.
- * These are interpreted from the TimeLength values stored above.
- *
- */
-typedef struct{
-    unsigned int fullRunCount; //how many full runs we need
-    unsigned short additionalTicks; // number of extra ticks for final run (this will not be a complete run)
-}TimerSettings;
-
-
-typedef struct{
-    unsigned volatile int fullRunsRemaining; //variable that counts down from fullRunCount and holds number of full runs left
-    unsigned volatile short finalRunTicks; // stores the number that we are comparing against in our final run to know when to interrupt the timer
-}TimerValues;
-
-typedef struct{
-    volatile uint16_t *CCR; //CCR register - allows us to update CCRy value for specific timer
-    volatile uint16_t *CCTL; //CCTL timer of specific timer
-    uint16_t InterruptMask; //specify bit that sets timer interrupt (specific timer) - bit interrupt is in to reset it [set and reset compare capture interrupt flag]
-    uint16_t InterruptEnableMask; // CCIE -  enable and disable interrupt
-}TimerRegister;
-
-
-
-
-/* KING STRUCT
-                  .       |         .    .
-            .  *         -*-          *
-                 \        |         /   .
-.    .            .      /^\     .              .    .
-   *    |\   /\    /\  / / \ \  /\    /\   /|    *
- .   .  |  \ \/ /\ \ / /     \ \ / /\ \/ /  | .     .
-         \ | _ _\/_ _ \_\_ _ /_/_ _\/_ _ \_/
-           \  *  *  *   \ \/ /  *  *  *  /
-            ` ~ ~ ~ ~ ~  ~\/~ ~ ~ ~ ~ ~ '
- */
-typedef struct { //The KING
-    TimerRegister Reg;
-    TimerDuration TimerTimes;
-    TimerSettings WateringSettings;
-    TimerSettings WaitingSettings;
-    TimerValues   ActiveValues;
-    PumpInfo *Pump;
-}TimerData;
-
-#define DELTA 2
-#define interruptMask 0b0
-#define interruptEnableMask 0b10
-#define WTimer TIMER_A3
-#define WTimerCounterRegister TIMER_A3->R
-#define Timer0CCR WTimer->CCR[0]
-#define Timer1CCR WTimer->CCR[1]
-#define Timer2CCR WTimer->CCR[2]
-#define Timer3CCR WTimer->CCR[3]
-#define Timer4CCR WTimer->CCR[4]
-#define Timer0CCTL WTimer->CCTL[0]
-#define Timer1CCTL WTimer->CCTL[1]
-#define Timer2CCTL WTimer->CCTL[2]
-#define Timer3CCTL WTimer->CCTL[3]
-#define Timer4CCTL WTimer->CCTL[4]
-
-
 //Declare structs for all timers
 TimerData Timer0 = {
                     .Reg = {
@@ -135,7 +57,6 @@ TimerData Timer4 = {
 };
 
 
-void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange);
 void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange){
     long long totalTicks=0;
     int ticks_s = TimerA3Clock; //ticks per second
@@ -158,14 +79,12 @@ void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange)
  * Updates the number of ticks for waiting and watering.
  * Should be called when the TimeLength is updated
  */
-void updateTimerTickSettings(TimerData *timer);
 void updateTimerTickSettings(TimerData *timer){
     convertTimerLengthToTicks(&(timer->TimerTimes.WateringLength),&(timer->WateringSettings));
     convertTimerLengthToTicks(&(timer->TimerTimes.WaitLength), &(timer->WaitingSettings));
 }
 
 
-void initWateringTimer(void);
 void initWateringTimer(){
     //Configure LFXT to use 32kHz crystal, source to ACLK
     configLFXT();
@@ -189,7 +108,6 @@ void initWateringTimer(){
 /*
  * using the current timer location, use the proper offset for desired time length, be able to refer to correct register to get current number of ticks
  */
-void recalculateActiveValues(TimerSettings *length, TimerValues *valuesToChange);
 void recalculateActiveValues(TimerSettings *length, TimerValues *valuesToChange){
     //int currentTicks = TIMER_A3->R;
     int currentTicks = WTimerCounterRegister;
@@ -207,7 +125,6 @@ void recalculateActiveValues(TimerSettings *length, TimerValues *valuesToChange)
 /*
  * Toggle pump, switch active state of timer and pump (wait<-->water), switch timer mode, recalculate  active values for next run
  */
-void startTimerCycle_interrupt(TimerData *timer);
 void startTimerCycle_interrupt(TimerData *timer){
     togglePump(timer->Pump); //toggle pump status
     //is active stores pump status for next run
@@ -225,7 +142,6 @@ void startTimerCycle_interrupt(TimerData *timer){
  * Will initiate final run and set ccr value to appropriate value
  */
 
-void initFinalRun_interrupt(TimerData *timer);
 void initFinalRun_interrupt(TimerData *timer){
     //clear the interrupt flag.
     *(timer->Reg.CCTL) &= ~(timer->Reg.InterruptMask);
@@ -241,7 +157,6 @@ void initFinalRun_interrupt(TimerData *timer){
 
 
 //concludes the final run (partial cycle),
-void completePartialRunTasks_interrupt(TimerData *timer);
 void completePartialRunTasks_interrupt(TimerData *timer){
     *(timer->Reg.CCTL) &= ~(timer->Reg.InterruptMask);// clear interrupt flag
     startTimerCycle_interrupt(timer);
@@ -258,7 +173,6 @@ void completePartialRunTasks_interrupt(TimerData *timer){
 
 
 //concludes a full timer run cycle (0xFFFF), decrements currentFullRunCount and begins final run or switches state if needed
-void completeFullRunTasks_interrupt(TimerData *timer);
 void completeFullRunTasks_interrupt(TimerData *timer){
     timer->ActiveValues.fullRunsRemaining--;
     if(timer->ActiveValues.fullRunsRemaining==0){
@@ -271,7 +185,6 @@ void completeFullRunTasks_interrupt(TimerData *timer){
 }
 
 
-void TA3_0_IRQHandler(void);
 void TA3_0_IRQHandler(void){
     if(*(Timer0.Reg.CCTL) & Timer0.Reg.InterruptMask){
         completePartialRunTasks_interrupt(&Timer0);
@@ -279,7 +192,6 @@ void TA3_0_IRQHandler(void){
 }
 
 
-void TA3_N_IRQHandler(void);
 void TA3_N_IRQHandler(void){
     //check if interrupt was caused by completing a full run
     if(TIMER_A3->CTL & TIMER_A_CTL_IFG){
