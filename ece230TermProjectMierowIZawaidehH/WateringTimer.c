@@ -10,6 +10,7 @@
 #include "Pump.h"
 #include "WateringTimer.h"
 #include "Time.h"
+#include "csLFXT.h"
 
 /*  Timer Configuration Variables:
  *
@@ -134,10 +135,10 @@ void startTimerCycle_interrupt(TimerData *timer){
     togglePump(timer->Pump); //toggle pump status
     //is active stores pump status for next run
     if(timer->Pump->IsActive){
-        recalculateActiveValues(timer->WateringSettings, timer->ActiveValues);
+        recalculateActiveValues((&timer->WateringSettings), &(timer->ActiveValues));
 
     }else{
-        recalculateActiveValues(timer->WaitingSettings, timer->ActiveValues);
+        recalculateActiveValues(&(timer->WaitingSettings), &(timer->ActiveValues));
     }
 
 }
@@ -147,15 +148,15 @@ void startTimerCycle_interrupt(TimerData *timer){
 //concludes the final run (partial cycle),
 void completePartialRunTasks_interrupt(TimerData *timer);
 void completePartialRunTasks_interrupt(TimerData *timer){
-    timer->Reg.CCTL&= ~(timer->Reg.InterruptMask);// clear flag
+    *(timer->Reg.CCTL) &= ~(timer->Reg.InterruptMask);// clear flag
     startTimerCycle_interrupt(timer);
     if(timer->ActiveValues.fullRunsRemaining==0){
         //enable TAxCCTLy CCIFG for the particular pump
-        timer->Reg.CCTL|= timer->Reg.InterruptEnableMask;
+        *(timer->Reg.CCTL)|= timer->Reg.InterruptEnableMask;
         //TAxCCRy = finalRunTicks
-        timer->Reg.CCR=timer->ActiveValues.finalRunTicks;
+        *(timer->Reg.CCR) =timer->ActiveValues.finalRunTicks;
     }else{
-        timer->Reg.CCTL&= ~(timer->Reg.InterruptEnableMask); //turn off enable
+        *(timer->Reg.CCTL)&= ~(timer->Reg.InterruptEnableMask); //turn off enable
     }
 
 }
@@ -168,9 +169,9 @@ void completePartialRunTasks_interrupt(TimerData *timer){
 void initFinalRun_interrupt(TimerData *timer);
 void initFinalRun_interrupt(TimerData *timer){
     //enable TAxCCTLy CCIFG for the particular pump
-    timer->Reg.CCTL|= timer->Reg.InterruptEnableMask;
+    *(timer->Reg.CCTL) |= timer->Reg.InterruptEnableMask;
     //TAxCCRy = finalRunTicks
-    timer->Reg.CCR=timer->ActiveValues.finalRunTicks;
+    *(timer->Reg.CCR) =timer->ActiveValues.finalRunTicks;
 }
 
 #define DELTA 2
