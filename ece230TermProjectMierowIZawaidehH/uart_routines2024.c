@@ -7,6 +7,17 @@
 
 #include <uart_routines2024.h>
 
+/*  Currently set to send information on Pins:
+ *      Uses A0:
+ *      P1.2/UCA0RXD |<---- TX PC
+ *      P1.3/UCA0TXD |----> RX PC
+ *
+ *  Settings:
+ *      38400 8E1
+ *
+ *
+ */
+
 //UART A0 IO pins
 // P1.3/UCA0TXD |----> RX PC (echo)
 //  P1.2/UCA0RXD |<---- TX PC
@@ -61,11 +72,15 @@ void ConfigureUART_A0(void) {
      *  LSB first by default, SMCLK clock source
      */
     EUSCI_A0->CTLW0 |= EUSCI_A_CTLW0_SWRST; // Put eUSCI in reset to configure eUSCI
-//bit 15 = 0 to disable parity; bit14=0 Old parity; bit13=0 for LSB first;
+//bit 15 = 0 to disable parity; bit14=0 Odd parity; bit13=0 for LSB first;
 //bit12=0 for 8-bit mode; bit11=0 for one stop bit; bits7-6 = 0b10 for SMCLK
     //EUSCI_A0->CTLW0 |= 0b0000000010000000;
+
+
     //Change to even parity by  bit15=1, bit15=1 even parity
     EUSCI_A0->CTLW0 |= 0b1100000010000000;
+
+
 //even parity
 //      EUSCI_A1->CTLW0 |= 0b1100000010000000;
     /* Baud Rate calculation
