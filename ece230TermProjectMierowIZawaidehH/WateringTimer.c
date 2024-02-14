@@ -38,27 +38,6 @@ typedef struct{
 }TimerSettings;
 
 
-void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange);
-void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange){
-    long long totalTicks=0;
-    int ticks_s = TimerA3Clock; //ticks per second
-    int ticks_ms = 0.001*ticks_s;
-    int ticks_m =60*ticks_s;
-    int ticks_h = 60*ticks_m;
-    int ticks_d = 24*ticks_h;
-    totalTicks = (time->ms *(ticks_ms))+
-            (time->sec *(ticks_s))+
-            (time->hr *(ticks_h)) +
-            (time->min)*(ticks_m)+
-            (time->day *(ticks_d));
-    settingToChange->additionalTicks = totalTicks%(2^16);
-    settingToChange->additionalTicks = (totalTicks-settingToChange->additionalTicks)/(2^16);
-
-}
-
-
-
-
 typedef struct{
     unsigned volatile int fullRunsRemaining; //variable that counts down from fullRunCount and holds number of full runs left
     unsigned volatile short finalRunTicks; // stores the number that we are comparing against in our final run to know when to interrupt the timer
@@ -93,6 +72,72 @@ typedef struct { //The KING
     TimerValues   ActiveValues;
     PumpInfo *Pump;
 }TimerData;
+
+#define interruptMask 0b0
+#define interruptEnableMask 0b10
+//Declare structs for all timers
+TimerData Timer0 = {
+                    .Reg = {
+                        .CCR = &(TIMER_A3->CCR[0]),
+                        .CCTL = &(TIMER_A3->CCTL[0]),
+                        .InterruptMask = interruptMask,
+                        .InterruptEnableMask=interruptEnableMask
+                        },
+                    //let timer times be undeclared.
+                   // .Pump = *allPumps[0]
+};
+TimerData Timer1 = {
+                    .Reg = {
+                        .CCR = &(TIMER_A3->CCR[1]),
+                        .CCTL = &(TIMER_A3->CCTL[1]),
+                        .InterruptMask = interruptMask,
+                        .InterruptEnableMask=interruptEnableMask
+                        },
+};
+TimerData Timer2 = {
+                    .Reg = {
+                        .CCR = &(TIMER_A3->CCR[2]),
+                        .CCTL = &(TIMER_A3->CCTL[2]),
+                        .InterruptMask = interruptMask,
+                        .InterruptEnableMask=interruptEnableMask
+                        },
+};
+TimerData Timer3 = {
+                    .Reg = {
+                        .CCR = &(TIMER_A3->CCR[3]),
+                        .CCTL = &(TIMER_A3->CCTL[3]),
+                        .InterruptMask = interruptMask,
+                        .InterruptEnableMask=interruptEnableMask
+                        },
+};
+TimerData Timer4 = {
+                    .Reg = {
+                        .CCR = &(TIMER_A3->CCR[4]),
+                        .CCTL = &(TIMER_A3->CCTL[4]),
+                        .InterruptMask = interruptMask,
+                        .InterruptEnableMask=interruptEnableMask
+                        },
+};
+
+
+void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange);
+void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange){
+    long long totalTicks=0;
+    int ticks_s = TimerA3Clock; //ticks per second
+    int ticks_ms = 0.001*ticks_s;
+    int ticks_m =60*ticks_s;
+    int ticks_h = 60*ticks_m;
+    int ticks_d = 24*ticks_h;
+    totalTicks = (time->ms *(ticks_ms))+
+            (time->sec *(ticks_s))+
+            (time->hr *(ticks_h)) +
+            (time->min)*(ticks_m)+
+            (time->day *(ticks_d));
+    settingToChange->additionalTicks = totalTicks%(2^16);
+    settingToChange->additionalTicks = (totalTicks-settingToChange->additionalTicks)/(2^16);
+
+}
+
 
 /*
  * Updates the number of ticks for waiting and watering.
@@ -213,8 +258,28 @@ void completeFullRunTasks_interrupt(TimerData *timer){
 }
 
 
-
+//occurs when
 void TA3_0_IRQHandler(void);
+void TA3_0_IRQHandler(void){
+
+}
+
+
 void TA3_N_IRQHandler(void);
+void TA3_N_IRQHandler(void){
+    //check if interrupt was caused by completing a full run
+    if(TIMER_A3->CTL & TIMER_A_CTL_IFG){
+        //handle timer overflow
+    }else{
+        if(Timer0->Reg.CCTL & TIMER_A3_CCTLN_CCIFG)
+    }
+}
+/*
+ * full run interrupt when 0xFFFF->0x0000
+ * TAIFG flag (bit 0) in TAxCTL register (0 no flag, 1, interrupt pending)
+ * TAIE disables and enables interrupt (bit 1 in CTL)
+ *
+ */
+
 //__enable_irq(); //enable global interrupt
 
