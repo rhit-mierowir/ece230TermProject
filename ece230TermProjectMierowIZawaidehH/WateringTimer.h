@@ -18,7 +18,7 @@
 
 #define DELTA 2
 
-#define interruptMask 0b0
+#define interruptMask 0b1
 #define interruptEnableMask 0b10
 
 #define WTimer TIMER_A3
@@ -34,6 +34,7 @@
 #define Timer2CCTL WTimer->CCTL[2]
 #define Timer3CCTL WTimer->CCTL[3]
 #define Timer4CCTL WTimer->CCTL[4]
+#define WTimerModeContinuousBit 0b100000
 
 
 /*  Timer Configuration Variables:
@@ -109,7 +110,8 @@ void completePartialRunTasks_interrupt(TimerData *timer);
 void completeFullRunTasks_interrupt(TimerData *timer);
 void TA3_0_IRQHandler(void);
 void TA3_N_IRQHandler(void);
-
+void pauseTimer();
+void resumeTimer();
 
 
 

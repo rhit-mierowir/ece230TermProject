@@ -32,16 +32,16 @@ void main(void)
 	TimeLength waitTime = {
 	                       .day = 0,
 	                       .hr = 0,
-	                       .min = 0,
-	                       .sec = 20,
+	                       .min = 1,
+	                       .sec = 40,
 	                       .ms = 0
 	};
 
     TimeLength waterTime = {
                            .day = 0,
                            .hr = 0,
-                           .min = 0,
-                           .sec = 10,
+                           .min = 1,
+                           .sec = 1,
                            .ms = 0
     };
 

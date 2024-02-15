@@ -67,6 +67,19 @@ TimerData Timer4 = {
 
 };
 
+void pauseTimer(){
+    //bits 4 and 5 of TAxCTL
+    //00b - stop mode
+    //10b - continuous mode
+    WTimer->CTL &=~WTimerModeContinuousBit;
+}
+void resumeTimer(){
+    //bits 4 and 5 of TAxCTL
+    //00b - stop mode
+    //10b - continuous mode
+    WTimer->CTL |=WTimerModeContinuousBit;
+}
+
 
 void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange){
     long long totalTicks=0;
@@ -95,6 +108,7 @@ void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange)
 void updateTimerTickSettings(TimerData *timer){
     convertTimerLengthToTicks(&(timer->TimerTimes.WateringLength),&(timer->WateringSettings));
     convertTimerLengthToTicks(&(timer->TimerTimes.WaitLength), &(timer->WaitingSettings));
+    pauseTimer();
     if(timer->Pump->IsActive){
         recalculateActiveValues((&timer->WateringSettings), &(timer->ActiveValues));
 
@@ -104,7 +118,9 @@ void updateTimerTickSettings(TimerData *timer){
     if(timer->ActiveValues.fullRunsRemaining==0){
         initFinalRun_interrupt(timer);
     }
+    resumeTimer();
 }
+
 
 
 void initWateringTimer(){
@@ -201,13 +217,17 @@ void completePartialRunTasks_interrupt(TimerData *timer){
 
 //concludes a full timer run cycle (0xFFFF), decrements currentFullRunCount and begins final run or switches state if needed
 void completeFullRunTasks_interrupt(TimerData *timer){
-    timer->ActiveValues.fullRunsRemaining--;
+    if(timer->ActiveValues.fullRunsRemaining!=0){
+        timer->ActiveValues.fullRunsRemaining--;
+    }
     if(timer->ActiveValues.fullRunsRemaining==0){
+        pauseTimer();
         if((timer->ActiveValues.finalRunTicks)<= DELTA){
             startTimerCycle_interrupt(timer);
         }else{
             initFinalRun_interrupt(timer);
         }//end else
+        resumeTimer();
     }//end if
 }
 
