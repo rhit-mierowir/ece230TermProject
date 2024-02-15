@@ -80,8 +80,10 @@ void convertTimerLengthToTicks(TimeLength *time, TimerSettings *settingToChange)
             (time->hr *(ticks_h)) +
             (time->min)*(ticks_m)+
             (time->day *(ticks_d));
-    settingToChange->additionalTicks = totalTicks%(2^16);
-    settingToChange->additionalTicks = (totalTicks-settingToChange->additionalTicks)/(2^16);
+//    settingToChange->additionalTicks = totalTicks%(2^16);
+//    settingToChange->fullRunCount = (totalTicks-settingToChange->additionalTicks)/(2^16);
+    settingToChange->additionalTicks = totalTicks%(65536);
+    settingToChange->fullRunCount = (totalTicks-settingToChange->additionalTicks)/(65536);
 
 }
 

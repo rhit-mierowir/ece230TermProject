@@ -33,8 +33,8 @@ void main(void)
 	                       .day = 0,
 	                       .hr = 0,
 	                       .min = 0,
-	                       .sec = 10,
-	                       .ms = 12
+	                       .sec = 20,
+	                       .ms = 0
 	};
 
     TimeLength waterTime = {
