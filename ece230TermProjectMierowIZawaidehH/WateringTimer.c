@@ -253,27 +253,27 @@ void TA3_N_IRQHandler(void){
 
 
 
-    }else{
-        if(*(Timer1.Reg.CCTL) & Timer1.Reg.InterruptMask){
-            *(Timer1.Reg.CCTL) &= ~(Timer1.Reg.InterruptMask);// clear interrupt flag
-            completePartialRunTasks_interrupt(&Timer1);
-        }
-        if(*(Timer2.Reg.CCTL) & Timer2.Reg.InterruptMask){
-            *(Timer2.Reg.CCTL) &= ~(Timer2.Reg.InterruptMask);// clear interrupt flag
-            completePartialRunTasks_interrupt(&Timer2);
-
-        }
-        if(*(Timer3.Reg.CCTL) & Timer3.Reg.InterruptMask){
-            *(Timer3.Reg.CCTL) &= ~(Timer3.Reg.InterruptMask);// clear interrupt flag
-            completePartialRunTasks_interrupt(&Timer3);
-
-        }
-        if(*(Timer4.Reg.CCTL) & Timer4.Reg.InterruptMask){
-            *(Timer4.Reg.CCTL) &= ~(Timer4.Reg.InterruptMask);// clear interrupt flag
-            completePartialRunTasks_interrupt(&Timer4);
-
-        }
     }
+    if(*(Timer1.Reg.CCTL) & TIMER_A_CCTLN_CCIFG){
+        *(Timer1.Reg.CCTL) &= ~(Timer1.Reg.InterruptMask);// clear interrupt flag
+        completePartialRunTasks_interrupt(&Timer1);
+    }
+    if(*(Timer2.Reg.CCTL) & Timer2.Reg.InterruptMask){
+        *(Timer2.Reg.CCTL) &= ~(Timer2.Reg.InterruptMask);// clear interrupt flag
+        completePartialRunTasks_interrupt(&Timer2);
+
+    }
+    if(*(Timer3.Reg.CCTL) & Timer3.Reg.InterruptMask){
+        *(Timer3.Reg.CCTL) &= ~(Timer3.Reg.InterruptMask);// clear interrupt flag
+        completePartialRunTasks_interrupt(&Timer3);
+
+    }
+    if(*(Timer4.Reg.CCTL) & Timer4.Reg.InterruptMask){
+        *(Timer4.Reg.CCTL) &= ~(Timer4.Reg.InterruptMask);// clear interrupt flag
+        completePartialRunTasks_interrupt(&Timer4);
+
+    }
+
 }
 /*
  * full run interrupt when 0xFFFF->0x0000

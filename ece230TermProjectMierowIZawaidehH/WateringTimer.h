@@ -19,7 +19,7 @@
 #define DELTA 2
 
 #define interruptMask 0b1
-#define interruptEnableMask 0b10
+#define interruptEnableMask 0x10
 
 #define WTimer TIMER_A3
 #define WTimerCounterRegister TIMER_A3->R
