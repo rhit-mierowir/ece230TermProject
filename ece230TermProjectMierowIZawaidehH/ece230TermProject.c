@@ -75,15 +75,15 @@ void main(void)
     TimeLength waitTime = {
                            .day = 0,
                            .hr = 0,
-                           .min = 2,
-                           .sec = 35,
+                           .min = 0,
+                           .sec = 10,
                            .ms = 0
     };
     TimeLength waterTime = {
                            .day = 0,
                            .hr = 0,
                            .min = 0,
-                           .sec = 11,
+                           .sec = 8,
                            .ms = 0
     };
 
@@ -115,6 +115,37 @@ void main(void)
 	    }else{
 	        turnOffLED(levelMask);
 	    }
+	    if(checkSW0()){
+	        turnOnLED(plant0Mask);
+	    }else{
+	        turnOffLED(plant0Mask);
+	    }
+        if(checkSW1()){
+            turnOnLED(plant1Mask);
+        }else{
+            turnOffLED(plant1Mask);
+        }
+        if(checkSW2()){
+            turnOnLED(plant2Mask);
+        }else{
+            turnOffLED(plant2Mask);
+        }
+        if(checkSW3()){
+            turnOnLED(plant3Mask);
+        }else{
+            turnOffLED(plant3Mask);
+        }
+        if(checkSW4()){
+            turnOnLED(plant4Mask);
+        }else{
+            turnOffLED(plant4Mask);
+        }
+        if(checkMasterSW()){
+            turnOnLED(masterMask);
+        }else{
+            turnOffLED(masterMask);
+        }
+
 
 	}
 }

@@ -46,13 +46,16 @@ void checkAllSwitches(void){
         SwitchStates._0isPressed=1;
     }else{
         SwitchStates._0isPressed=0;
+
     }
     switchValue= switchPort -> IN & plant1Mask;
     if(switchValue==0){ //pressed
         debounce();
         SwitchStates._1isPressed=1;
+
     }else{
         SwitchStates._1isPressed=0;
+
     }
     switchValue= switchPort -> IN & plant2Mask;
     if(switchValue==0){ //pressed
