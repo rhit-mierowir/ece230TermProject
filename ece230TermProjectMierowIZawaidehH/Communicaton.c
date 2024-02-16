@@ -37,17 +37,18 @@
 #define CMD_StopTimer               "STP"
 #define CMD_SetTimerLength          "TME"
 #define CMD_DecideActionWhenEmpty   "EMP"
-#define CMD_SaveTimerConfigs        "SVE"
+#define CMD_SaveTimerConfig         "SVE"
 #define CMD_ResetToTimerConfig      "RST"
 #define CMD_PrintAllToScreen        "PNT"
 
 //This is the message sent if the command was not found. %s replaced by command received.
 #define StringIfCommandNotRecognized "Command \"%s\" not recognized."
 // length of the above string, but it removes the 2chars '%s', replacing with length of command
-#define StringIfCommandNotRecognizedLength = strlen(StringIfCommandNotRecognized) -2 + COMMAND_LENGTH
+#define StringIfCommandNotRecognizedLength 31
+//(strlen(StringIfCommandNotRecognized) -2 + COMMAND_LENGTH)
 
 
-char* CommandBuffer[COMMAND_LENGTH + 1]; //holds 3 characters for commands (+1 for null)
+char CommandBuffer[COMMAND_LENGTH + 1]; //holds 3 characters for commands (+1 for null)
 unsigned short CommandBufferIndex = 0; // the index of the next character to add
 
 // this is how we specify what string to send
@@ -62,33 +63,46 @@ void evaluateCommandBuffer(void){
     //If we are evaluating a full command
     if(CommandBufferIndex >= COMMAND_LENGTH){
         //Check if it is a valid command
-        if (strcmp(CommandBuffer,CMD_WaterPlant)){
+        if (strcmp(CommandBuffer,CMD_WaterPlant)==0){
             performWaterPlant();
-            goto finish_evaluate;
+            clearCommandBuffer();
+            return;
 
-        }else if(strcmp(CommandBuffer,CMD_StopTimer)){
+        }else if(strcmp(CommandBuffer,CMD_StopTimer)==0){
             performStopTimer();
-            goto finish_evaluate;
+            clearCommandBuffer();
+            return;
 
-        }else if(strcmp(CommandBuffer,CMD_SetTimerLength)){
+
+        }else if(strcmp(CommandBuffer,CMD_SetTimerLength)==0){
             setTimerLength();
-            goto finish_evaluate;
+            clearCommandBuffer();
+            return;
 
-        }else if(strcmp(CommandBuffer,CMD_DecideActionWhenEmpty)){
+
+        }else if(strcmp(CommandBuffer,CMD_DecideActionWhenEmpty)==0){
             decideActionWhenEmpty();
-            goto finish_evaluate;
+            clearCommandBuffer();
+            return;
 
-        }else if(strcmp(CommandBuffer,CMD_SaveTimerConfig)){
+
+        }else if(strcmp(CommandBuffer,CMD_SaveTimerConfig)==0){
             saveTimerConfig();
-            goto finish_evaluate;
+            clearCommandBuffer();
+            return;
 
-        }else if(strcmp(CommandBuffer,CMD_ResetToTimerConfig)){
+
+        }else if(strcmp(CommandBuffer,CMD_ResetToTimerConfig)==0){
             resetToTimerConfig();
-            goto finish_evaluate;
+            clearCommandBuffer();
+            return;
 
-        }else if(strcmp(CommandBuffer,CMD_PrintAllToScreen)){
+
+        }else if(strcmp(CommandBuffer,CMD_PrintAllToScreen)==0){
             printAllToScreen();
-            goto finish_evaluate;
+            clearCommandBuffer();
+            return;
+
 
         }
         //continue adding valid commands here.
@@ -98,7 +112,6 @@ void evaluateCommandBuffer(void){
     char* buffer[StringIfCommandNotRecognizedLength];
     sendString(sprintf(buffer,StringIfCommandNotRecognized,CommandBuffer));
 
-    finish_evaluate:
 
     clearCommandBuffer(); //clear commands when finished
     return;
@@ -117,7 +130,8 @@ void initCommunication(){
  */
 void clearCommandBuffer();
 void clearCommandBuffer(){
-    for (int i = 0; i < COMMAND_LENGTH;i++){
+    int i;
+    for (i = 0; i < COMMAND_LENGTH;i++){
         CommandBuffer[i] = CLEAR_CHAR;
     }
     CommandBufferIndex = 0;

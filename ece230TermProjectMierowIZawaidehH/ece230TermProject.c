@@ -25,53 +25,45 @@ void main(void)
 {
 	WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;		// stop watchdog timer
 
-	TimeLength testTime = {
-	                       .day = 1,
-	                       .hr = 0,
-	                       .min = 2,
-	                       .sec = 5,
-	                       .ms = 12
-	};
-
-	char buffer[30];
-	extern char* CommandBuffer;
+	extern char CommandBuffer[];
 
 	initCommunication();
 
 	printf("hello world!\r\n");
-	sprintf(CommandBuffer);
+	printf(CommandBuffer);
 	printf("\r\n");
 
 	addCharToCommandBuffer('a');
-	sprintf(CommandBuffer);
+	printf(CommandBuffer);
     printf("\r\n");
     addCharToCommandBuffer('b');
-    sprintf(CommandBuffer);
+    printf(CommandBuffer);
     printf("\r\n");
-    addCharToCommandBuffer('c');
-    sprintf(CommandBuffer);
+    addCharToCommandBuffer('3');
+    printf(CommandBuffer);
     printf("\r\n");
-    addCharToCommandBuffer('d');
-    sprintf(CommandBuffer);
+    addCharToCommandBuffer('l');
+    printf(CommandBuffer);
     printf("\r\n");
 
     evaluateCommandBuffer();
-    sprintf(CommandBuffer);
+    printf(CommandBuffer);
     printf("\r\n");
 
     addCharToCommandBuffer('s');
-    sprintf(CommandBuffer);
+    printf(CommandBuffer);
     printf("\r\n");
     addCharToCommandBuffer('t');
-    sprintf(CommandBuffer);
+    printf(CommandBuffer);
     printf("\r\n");
     addCharToCommandBuffer('p');
-    sprintf(CommandBuffer);
+    printf(CommandBuffer);
     printf("\r\n");
 
     evaluateCommandBuffer();
-    sprintf(CommandBuffer);
+    printf(CommandBuffer);
     printf("\r\n");
+
 
 	//initAllPumps();
 
