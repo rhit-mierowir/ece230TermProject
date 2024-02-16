@@ -2,6 +2,7 @@
 #include "Pump.h"
 #include "Time.h"
 #include "WateringTimer.h"
+#include "LevelSensor.h"
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -47,6 +48,7 @@ void main(void)
 
     initWateringTimer();
     initAllPumps();
+    configureLevelSensor();
     Timer1.TimerTimes.WaitLength=waitTime;
     Timer1.TimerTimes.WateringLength=waterTime;
     updateTimerTickSettings(&Timer1);
@@ -66,6 +68,12 @@ void main(void)
 
 	//initAllPumps();
 
-	while(1);
+	while(1){
+	    //check if water level is low
+	    if(readWaterLevelSensor()){
+	        waterLevelLow();
+	    }
+
+	}
 }
 
