@@ -1,6 +1,7 @@
 #include "msp.h"
 #include "Pump.h"
 #include "Time.h"
+#include "Communication.h"
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -33,34 +34,44 @@ void main(void)
 	};
 
 	char buffer[30];
+	extern char* CommandBuffer;
 
-	debounce();
-	debounce();
+	initCommunication();
 
 	printf("hello world!\r\n");
-	timeToString(buffer,&testTime,1);
-	printf(buffer);
-	printf("\r\n");
-	testTime.hr = 6;
-	timeToString(buffer,&testTime,1);
-	printf(buffer);
+	sprintf(CommandBuffer);
 	printf("\r\n");
 
-	stringToTime("5d 03m 9s 14ms",&testTime);
-    timeToString(buffer,&testTime,1);
-    printf(buffer);
+	addCharToCommandBuffer('a');
+	sprintf(CommandBuffer);
+    printf("\r\n");
+    addCharToCommandBuffer('b');
+    sprintf(CommandBuffer);
+    printf("\r\n");
+    addCharToCommandBuffer('c');
+    sprintf(CommandBuffer);
+    printf("\r\n");
+    addCharToCommandBuffer('d');
+    sprintf(CommandBuffer);
     printf("\r\n");
 
-	stringToTime("5d 03m 90s 1004ms",&testTime);
-	timeToString(buffer,&testTime,1);
-	printf(buffer);
-	printf("\r\n");
-
-	stringToTime("17520h 45m34",&testTime);
-    timeToString(buffer,&testTime,1);
-    printf(buffer);
+    evaluateCommandBuffer();
+    sprintf(CommandBuffer);
     printf("\r\n");
 
+    addCharToCommandBuffer('s');
+    sprintf(CommandBuffer);
+    printf("\r\n");
+    addCharToCommandBuffer('t');
+    sprintf(CommandBuffer);
+    printf("\r\n");
+    addCharToCommandBuffer('p');
+    sprintf(CommandBuffer);
+    printf("\r\n");
+
+    evaluateCommandBuffer();
+    sprintf(CommandBuffer);
+    printf("\r\n");
 
 	//initAllPumps();
 

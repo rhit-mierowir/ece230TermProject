@@ -33,9 +33,13 @@
 #define LOWERCASE_TO_UPPERCASE_SHIFT  0x20
 
 //Declare all of the command strings
-#define CMD_WaterPlant  "WTR"
-#define CMD_StopTimer   "STP"
-
+#define CMD_WaterPlant              "WTR"
+#define CMD_StopTimer               "STP"
+#define CMD_SetTimerLength          "TME"
+#define CMD_DecideActionWhenEmpty   "EMP"
+#define CMD_SaveTimerConfigs        "SVE"
+#define CMD_ResetToTimerConfig      "RST"
+#define CMD_PrintAllToScreen        "PNT"
 
 //This is the message sent if the command was not found. %s replaced by command received.
 #define StringIfCommandNotRecognized "Command \"%s\" not recognized."
@@ -49,25 +53,74 @@ unsigned short CommandBufferIndex = 0; // the index of the next character to add
 // this is how we specify what string to send
 void sendString(char *Buffer);
 void sendString(char *Buffer){
-
+    printf(Buffer);
+    printf("\r\n");
 }
 
 void evaluateCommandBuffer(void);
 void evaluateCommandBuffer(void){
-    if (strcmp(CommandBuffer,CMD_WaterPlant)){
-        performWaterPlant();
-        return;
+    //If we are evaluating a full command
+    if(CommandBufferIndex >= COMMAND_LENGTH){
+        //Check if it is a valid command
+        if (strcmp(CommandBuffer,CMD_WaterPlant)){
+            performWaterPlant();
+            goto finish_evaluate;
+
+        }else if(strcmp(CommandBuffer,CMD_StopTimer)){
+            performStopTimer();
+            goto finish_evaluate;
+
+        }else if(strcmp(CommandBuffer,CMD_SetTimerLength)){
+            setTimerLength();
+            goto finish_evaluate;
+
+        }else if(strcmp(CommandBuffer,CMD_DecideActionWhenEmpty)){
+            decideActionWhenEmpty();
+            goto finish_evaluate;
+
+        }else if(strcmp(CommandBuffer,CMD_SaveTimerConfig)){
+            saveTimerConfig();
+            goto finish_evaluate;
+
+        }else if(strcmp(CommandBuffer,CMD_ResetToTimerConfig)){
+            resetToTimerConfig();
+            goto finish_evaluate;
+
+        }else if(strcmp(CommandBuffer,CMD_PrintAllToScreen)){
+            printAllToScreen();
+            goto finish_evaluate;
+
+        }
+        //continue adding valid commands here.
     }
-    if(strcmp(CommandBuffer,CMD_StopTimer)){
-        performStopTimer();
-        return;
-    }
-    //continue adding valid commands here.
 
     //inform that no command was recognized
     char* buffer[StringIfCommandNotRecognizedLength];
     sendString(sprintf(buffer,StringIfCommandNotRecognized,CommandBuffer));
+
+    finish_evaluate:
+
+    clearCommandBuffer(); //clear commands when finished
     return;
+}
+
+/*
+ * This initializes the communication module. Run this prior to using.
+ */
+void initCommunication();
+void initCommunication(){
+    clearCommandBuffer();//reset the command buffer
+}
+
+/**
+ * Clear the command Buffer by fully populating with clear Chars, reset CommmandBufferIndex to 0
+ */
+void clearCommandBuffer();
+void clearCommandBuffer(){
+    for (int i = 0; i < COMMAND_LENGTH;i++){
+        CommandBuffer[i] = CLEAR_CHAR;
+    }
+    CommandBufferIndex = 0;
 }
 
 /*
@@ -199,8 +252,58 @@ void performWaterPlant(void){
     sendString("Implement performWarterPlant");
 }
 
+/*
+ * This command simply stops the timer so no time change occours. This also turns off any active motors.
+ * STP - stop the timer, turn off motors.
+ */
 void performStopTimer(void);
 void performStopTimer(void){
     sendString("Implement performStopTimer");
 }
 
+/*
+ * TME - Set the time of a timer.
+ *  | Which Timer? [0-4]
+ *  | (W)atering Time or (D)elay time?
+ *  | How Long? (input a time string. e.g. "1d 5h 3m 2s 1ms")
+ */
+void setTimerLength(void);
+void setTimerLength(void){
+    sendString("Implement setTimerLength");
+}
+
+/*
+ * EMP - Set Action When Empty.
+ *  | What indicator do you want shown when water is empty (can select multiple)? (0) None, (1) Turn on LED, (2) Sound Buzzer
+ *  | Should Timer be stopped while low? (Y)es, (N)o
+ *  > Y
+ *    | Should we return after stop by (W)atering, (D)elaying, or (R)eturning to delay in progress.
+ */
+void decideActionWhenEmpty(void);
+void decideActionWhenEmpty(void){
+    sendString("Implement decideActionWhenEmpty");
+}
+
+/*
+ * SVE - Save Timer Configurations
+ */
+void saveTimerConfig(void);
+void saveTimerConfig(void){
+    sendString("Implement saveTimerConfig");
+}
+
+/*
+ * RST - Reset by loading all timers from Configurations
+ */
+void resetToTimerConfig(void);
+void resetToTimerConfig(void){
+    sendString("Implement resetToTimerConfig");
+}
+
+/*
+ *
+ */
+void printAllToScreen(void);
+void printAllToScreen(void){
+    sendString("Implement printAllToScreen");
+}
