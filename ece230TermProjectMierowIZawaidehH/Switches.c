@@ -91,7 +91,7 @@ void checkAllSwitches(void){
     }
 }
 
-bool checkSW0(){
+bool checkSW0(void){
    if(!(switchPort -> IN & plant0Mask)){ //pressed
        debounce();
        SwitchStates._0isPressed=1;
@@ -100,7 +100,7 @@ bool checkSW0(){
    }
    return SwitchStates._0isPressed;
 }
-bool checkSW1(){
+bool checkSW1(void){
    if(!(switchPort -> IN & plant1Mask)){ //pressed
        debounce();
        SwitchStates._1isPressed=1;
@@ -109,7 +109,7 @@ bool checkSW1(){
    }
    return SwitchStates._1isPressed;
 }
-bool checkSW2(){
+bool checkSW2(void){
    if(!(switchPort -> IN & plant2Mask)){ //pressed
        debounce();
        SwitchStates._2isPressed=1;
@@ -119,7 +119,7 @@ bool checkSW2(){
    return SwitchStates._2isPressed;
 
 }
-bool checkSW3(){
+bool checkSW3(void){
    if(!(switchPort -> IN & plant3Mask)){ //pressed
        debounce();
        SwitchStates._3isPressed=1;
@@ -128,7 +128,7 @@ bool checkSW3(){
    }
    return SwitchStates._3isPressed;
 }
-bool checkSW4(){
+bool checkSW4(void){
    if(!(switchPort -> IN & plant4Mask)){ //pressed
        debounce();
        SwitchStates._4isPressed=1;
@@ -137,7 +137,7 @@ bool checkSW4(){
    }
    return SwitchStates._4isPressed;
 }
-bool checkLevelSW(){
+bool checkLevelSW(void){
    if(!(switchPort -> IN & levelMask)){ //pressed
        debounce();
        SwitchStates.levelIsLow=1;
@@ -146,7 +146,7 @@ bool checkLevelSW(){
    }
    return SwitchStates.levelIsLow;
 }
-bool checkMasterSW(){
+bool checkMasterSW(void){
    if(!(switchPort -> IN & masterMask)){ //pressed
        debounce();
        SwitchStates.masterIsPressed=1;
@@ -156,3 +156,9 @@ bool checkMasterSW(){
    return SwitchStates.masterIsPressed;
 }
 
+void turnOnLED(uint16_t mask){
+    LEDPort->OUT |=mask;
+}
+void turnOffLED(uint16_t mask){
+    LEDPort->OUT &=~mask;
+}

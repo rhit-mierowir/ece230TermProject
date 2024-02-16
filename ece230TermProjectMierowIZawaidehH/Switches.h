@@ -38,4 +38,19 @@ typedef struct{
     volatile bool masterIsPressed;
 }SwitchStatuses;
 
+bool checkSW0(void);
+bool checkSW1(void);
+bool checkSW2(void);
+bool checkSW3(void);
+bool checkSW4(void);
+bool checkLevelSW(void);
+bool checkMasterSW(void);
+
+void checkAllSwitches(void);
+
+void turnOffLED(uint16_t mask);
+void turnOnLED(uint16_t mask);
+
+
+
 #endif /* SWITCHES_H_ */

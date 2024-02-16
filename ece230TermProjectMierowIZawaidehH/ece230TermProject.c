@@ -4,6 +4,7 @@
 #include "Communication.h"
 #include "WateringTimer.h"
 #include "LevelSensor.h"
+#include "Switches.h"
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -106,8 +107,13 @@ void main(void)
 
 	while(1){
 	    //check if water level is low
-	    if(readWaterLevelSensor()){
-	        waterLevelLow();
+//	    if(readWaterLevelSensor()){
+//	        waterLevelLow();
+//	    }
+	    if(checkLevelSW()){
+	        turnOnLED(levelMask);
+	    }else{
+	        turnOffLED(levelMask);
 	    }
 
 	}
