@@ -7,6 +7,7 @@
 
 #include "Switches.h"
 #include <stdbool.h> //true, false, bool
+#include "Pump.h"
 
 
 //S2 digital input w/ internal pull-up resistor
