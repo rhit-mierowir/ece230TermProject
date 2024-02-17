@@ -1,6 +1,6 @@
 #include "Communication.h"
 
-#include "time.h"
+#include "Time.h"
 #include "uart_routines2024.h"
 #include "WateringTimer.h"
 #include <stdio.h> //sprintf(), strcmp();
@@ -29,8 +29,20 @@
  */
 #define COMMAND_LENGTH 3
 #define CLEAR_CHAR ' '
+#define NULL_CHAR  0
 // number subtracted to lowercase numbers to make uppercase
 #define LOWERCASE_TO_UPPERCASE_SHIFT  0x20
+
+void evaluateCommandBuffer(void);
+void clearCommandBuffer();
+bool addCharToCommandBuffer(char addChar);
+
+//The
+#define NextLine "\r\n"
+#define NewLine '\n'
+#define Return '\r'
+//The max length of strings for user input
+#define UserInputBufferLength 200
 
 //Declare all of the command strings
 #define CMD_WaterPlant              "WTR"
@@ -41,94 +53,188 @@
 #define CMD_ResetToTimerConfig      "RST"
 #define CMD_PrintAllToScreen        "PNT"
 
+enum CommunicationState{  Command,
+                          WaterPlant,
+                          StopTimer,
+                          SetTimerLength,
+                          DecideActionWhenEmpty,
+                          SaveTimerConfig,
+                          ResetToTimerConfig,
+                          PrintAllToScreen
+}ActiveState;
+
+bool    displayMessage = true; //true if need to display message again
+
+char    lastCharBeforeEnter = NULL_CHAR; //this is the last char
+
+char   UserInputBuffer[UserInputBufferLength+1];//make room for null character at end
+int     UserInputBufferIndex = 0;//points to address of next unfilled index
+
 //This is the message sent if the command was not found. %s replaced by command received.
 #define StringIfCommandNotRecognized "Command \"%s\" not recognized."
 // length of the above string, but it removes the 2chars '%s', replacing with length of command
 #define StringIfCommandNotRecognizedLength 31
 //(strlen(StringIfCommandNotRecognized) -2 + COMMAND_LENGTH)
 
-
-char CommandBuffer[COMMAND_LENGTH + 1]; //holds 3 characters for commands (+1 for null)
-unsigned short CommandBufferIndex = 0; // the index of the next character to add
-
 // this is how we specify what string to send
 void sendString(char *Buffer);
 void sendString(char *Buffer){
     printf(Buffer);
-    printf("\r\n");
+    printf(NextLine);
 }
 
-void evaluateCommandBuffer(void);
+
+/*
+ * Stores the char provided in the lastCharBeforeReturn variable.
+ * If the character given is a newline character, it returns true and doesn't store it.
+ */
+bool storeInLastCharUntilEnter(char nextChar);
+bool storeInLastCharUntilEnter(char nextChar){
+    if (nextChar == NewLine){ return true;}
+    else{lastCharBeforeEnter=nextChar; return false;}
+}
+
+/*
+ * Clears the Last Character variable. Sets to NULL_CHAR
+ */
+void clearLastCharBeforeEnter();
+void clearLastCharBeforeEnter(){
+    lastCharBeforeEnter = NULL_CHAR;
+}
+
+/*
+ * Stores char provided into the UserInputBuffer if there is room for it.
+ * If character is an enter character, don't add and return true otherwise false.
+ */
+bool storeInUserInputBuffer(char nextChar);
+bool storeInUserInputBuffer(char nextChar){
+    if (nextChar == NewLine) {return true;} //inform a newline was received
+    else if (UserInputBufferIndex < UserInputBufferLength) {return false;} //don't add if it would overflow buffer
+    else {
+        UserInputBuffer[UserInputBufferIndex] = nextChar;
+        UserInputBufferIndex++;
+        return false;
+    }
+}
+
+/*
+ * Clears UserInputBuffer by decrementing from index, replacing with null characters.
+ */
+void clearUserInputBuffer();
+void clearUserInputBuffer(){
+    for(;UserInputBufferIndex>0;UserInputBufferIndex--){
+        UserInputBuffer[UserInputBufferIndex-1] = NULL_CHAR; //clear the character moving to
+    }
+}
+
+void displayLastCharPrompt(char *Prompt){
+    sendString(Prompt);
+    char Buffer[12]; //13 is the length of the string below after sprintf evaluates it.
+    sprintf(Buffer,"Selection: %c",lastCharBeforeEnter);
+    sendString(Buffer);
+}
+
+//========================================================= WATER PLANT ==================================================================================
+
+/* This command picks which plant to water and alters the timer to make that happen
+ * WTR - water a plant, then restart delay
+ *  | Which Plant? [0-4]
+ */
+void displayWaterPlant(void);
+void startWaterPlant(void);
+void addCharWaterPlant(char nextChar);
+void completeWaterPlant(char timerSelection);
+
+void displayWaterPlant(void){
+    displayLastCharPrompt("Which Plant To you want to water? [0-4]");
+    displayMessage = false; //mark display as performed
+}
+
+void startWaterPlant(void){
+    ActiveState = WaterPlant;
+    displayMessage = true;
+    clearLastCharBeforeEnter();
+}
+
+void addCharWaterPlant(char nextChar){
+    //Store the next char, perform command if enter pressed
+    if(storeInLastCharUntilEnter(nextChar)){
+        //Perform command with information provided, pulling char from LastCharBeforeEnter
+        completeWaterPlant(lastCharBeforeEnter);
+    }
+    //prompt to display whenever recieves new character.
+    displayMessage = true;
+}
+
+//called once all requirements and need to perform tasks and return control
+void completeWaterPlant(char timerSelection) {
+    sendString("Implement performWarterPlant");
+
+    //Hand control to command
+    ActiveState = Command;
+}
+
+// ============================================================ END WATER PLANT =========================================================================
+
+// ======================================================== COMMAND BUFFER ================================================================================
+
+char CommandBuffer[COMMAND_LENGTH + 1]; //holds 3 characters for commands (+1 for null)
+unsigned short CommandBufferIndex = 0; // the index of the next character to add
+
 void evaluateCommandBuffer(void){
     //If we are evaluating a full command
     if(CommandBufferIndex >= COMMAND_LENGTH){
         //Check if it is a valid command
         if (strcmp(CommandBuffer,CMD_WaterPlant)==0){
-            performWaterPlant();
+            startWaterPlant();
             clearCommandBuffer();
             return;
 
         }else if(strcmp(CommandBuffer,CMD_StopTimer)==0){
-            performStopTimer();
+            ActiveState = StopTimer;
             clearCommandBuffer();
             return;
-
 
         }else if(strcmp(CommandBuffer,CMD_SetTimerLength)==0){
-            setTimerLength();
+            ActiveState = SetTimerLength;
             clearCommandBuffer();
             return;
-
 
         }else if(strcmp(CommandBuffer,CMD_DecideActionWhenEmpty)==0){
-            decideActionWhenEmpty();
+            ActiveState = DecideActionWhenEmpty;
             clearCommandBuffer();
             return;
-
 
         }else if(strcmp(CommandBuffer,CMD_SaveTimerConfig)==0){
-            saveTimerConfig();
+            ActiveState = SaveTimerConfig;
             clearCommandBuffer();
             return;
-
 
         }else if(strcmp(CommandBuffer,CMD_ResetToTimerConfig)==0){
-            resetToTimerConfig();
+            ActiveState = ResetToTimerConfig;
             clearCommandBuffer();
             return;
-
 
         }else if(strcmp(CommandBuffer,CMD_PrintAllToScreen)==0){
-            printAllToScreen();
+            ActiveState = PrintAllToScreen;
             clearCommandBuffer();
             return;
-
 
         }
         //continue adding valid commands here.
     }
 
     //inform that no command was recognized
-    char* buffer[StringIfCommandNotRecognizedLength];
-    sendString(sprintf(buffer,StringIfCommandNotRecognized,CommandBuffer));
-
+    //char* buffer[StringIfCommandNotRecognizedLength];
+    //sendString(sprintf(buffer,StringIfCommandNotRecognized,CommandBuffer));
 
     clearCommandBuffer(); //clear commands when finished
     return;
 }
 
-/*
- * This initializes the communication module. Run this prior to using.
- */
-void initCommunication();
-void initCommunication(){
-    clearCommandBuffer();//reset the command buffer
-}
-
 /**
  * Clear the command Buffer by fully populating with clear Chars, reset CommmandBufferIndex to 0
  */
-void clearCommandBuffer();
 void clearCommandBuffer(){
     int i;
     for (i = 0; i < COMMAND_LENGTH;i++){
@@ -142,7 +248,6 @@ void clearCommandBuffer(){
  * The Command buffer only accepts letters and numbers, capitalizes all letters
  * Returns true if an update occurred, changing the value of CommandBuffer
  */
-bool addCharToCommandBuffer(char addChar);
 bool addCharToCommandBuffer(char addChar){
 
     if (CommandBufferIndex >= COMMAND_LENGTH){
@@ -255,69 +360,60 @@ bool addCharToCommandBuffer(char addChar){
             return false;
 
         }
+        return false;
 }
 
-/* This command picks which plant to water and alters the timer to make that happen
- * WTR - water a plant, then restart delay
- *  | Which Plant? [0-4]
+
+//===================================================== END COMMAND BUFFER ==============================================================================
+
+// ========================================================== Primary Operations =========================================================================
+
+/*
+ * This initializes the communication module. Run this prior to using.
  */
-void performWaterPlant(void);
-void performWaterPlant(void){
-    sendString("Implement performWarterPlant");
+void initCommunication();
+void initCommunication(){
+    clearCommandBuffer();//reset the command buffer
+    ActiveState = Command;
+    displayMessage = true;
+}
+
+
+/*
+ * This is called to give communication the ability to send information
+ */
+void displayCommunication(void);
+void displayCommunication(void){
+    switch(ActiveState){
+    case Command:
+        if (displayMessage) {sendString(CommandBuffer);} //display if need to display
+        break;
+    case WaterPlant:
+        if (displayMessage) {displayWaterPlant();}
+        break;
+    case PrintAllToScreen:
+        //performPrintAllToScreen();
+        break;
+    }
 }
 
 /*
- * This command simply stops the timer so no time change occours. This also turns off any active motors.
- * STP - stop the timer, turn off motors.
+ * This is called whenever information is recieved.
  */
-void performStopTimer(void);
-void performStopTimer(void){
-    sendString("Implement performStopTimer");
+void recieveCharForCommunication(char recieved);
+void recieveCharForCommunication(char recieved){
+    switch (ActiveState){
+    case Command:
+        displayMessage = addCharToCommandBuffer(recieved);//display new message if change
+        break;
+    case WaterPlant:
+        addCharWaterPlant(recieved);
+        break;
+
+    //ignore any characters received here
+    case PrintAllToScreen:
+    default:
+        break;
+    }
 }
 
-/*
- * TME - Set the time of a timer.
- *  | Which Timer? [0-4]
- *  | (W)atering Time or (D)elay time?
- *  | How Long? (input a time string. e.g. "1d 5h 3m 2s 1ms")
- */
-void setTimerLength(void);
-void setTimerLength(void){
-    sendString("Implement setTimerLength");
-}
-
-/*
- * EMP - Set Action When Empty.
- *  | What indicator do you want shown when water is empty (can select multiple)? (0) None, (1) Turn on LED, (2) Sound Buzzer
- *  | Should Timer be stopped while low? (Y)es, (N)o
- *  > Y
- *    | Should we return after stop by (W)atering, (D)elaying, or (R)eturning to delay in progress.
- */
-void decideActionWhenEmpty(void);
-void decideActionWhenEmpty(void){
-    sendString("Implement decideActionWhenEmpty");
-}
-
-/*
- * SVE - Save Timer Configurations
- */
-void saveTimerConfig(void);
-void saveTimerConfig(void){
-    sendString("Implement saveTimerConfig");
-}
-
-/*
- * RST - Reset by loading all timers from Configurations
- */
-void resetToTimerConfig(void);
-void resetToTimerConfig(void){
-    sendString("Implement resetToTimerConfig");
-}
-
-/*
- *
- */
-void printAllToScreen(void);
-void printAllToScreen(void){
-    sendString("Implement printAllToScreen");
-}

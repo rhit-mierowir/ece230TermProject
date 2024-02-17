@@ -4,10 +4,9 @@
 #include "Communication.h"
 #include "WateringTimer.h"
 #include "LevelSensor.h"
+#include "uart_routines2024.h"
 #include <stdio.h>
 #include <stdbool.h>
-#include <stdio.h>
-
 
 //// Set Debounce values for script.
 //#define SYSTEM_CLOCK_FREQUENCY 3000  //kHz  (3MHz)
@@ -23,13 +22,13 @@
 extern TimerData Timer1;
 
 
-
 /**
  * main.c
  */
 void main(void)
 {
 	WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;		// stop watchdog timer
+	ConfigureUART_A0();
 
     extern char CommandBuffer[];
 	initCommunication();
@@ -55,13 +54,13 @@ void main(void)
     printf(CommandBuffer);
     printf("\r\n");
 
-    addCharToCommandBuffer('s');
+    addCharToCommandBuffer('w');
     printf(CommandBuffer);
     printf("\r\n");
     addCharToCommandBuffer('t');
     printf(CommandBuffer);
     printf("\r\n");
-    addCharToCommandBuffer('p');
+    addCharToCommandBuffer('r');
     printf(CommandBuffer);
     printf("\r\n");
 
@@ -69,7 +68,12 @@ void main(void)
     printf(CommandBuffer);
     printf("\r\n");
 
-
+    displayCommunication();
+    displayCommunication();
+    recieveCharForCommunication('2');
+    displayCommunication();
+    recieveCharForCommunication('\n');
+    displayCommunication();
 
     TimeLength waitTime = {
                            .day = 0,
