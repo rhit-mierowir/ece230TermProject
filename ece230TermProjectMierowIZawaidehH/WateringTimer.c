@@ -11,7 +11,7 @@
 #include "WateringTimer.h"
 #include "Time.h"
 #include "csLFXT.h"
-
+#include "Procedures.h"
 
 extern PumpInfo Pump0, Pump1, Pump2, Pump3, Pump4;
 

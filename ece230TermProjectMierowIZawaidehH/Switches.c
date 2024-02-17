@@ -14,11 +14,11 @@
 //ren =1, out =1
 //dir =0, sel0=0, sel1=0
 void configureAllPlantSwitches(void){
-    switchPort ->SEL1&=~(plant0Mask|plant1Mask|plant2Mask|plant3Mask|plant4Mask|levelMask|masterMask);
-    switchPort ->SEL0&=~(plant0Mask|plant1Mask|plant2Mask|plant3Mask|plant4Mask|levelMask|masterMask);
-    switchPort ->DIR&=~(plant0Mask|plant1Mask|plant2Mask|plant3Mask|plant4Mask|levelMask|masterMask);
-    switchPort ->REN|=(plant0Mask|plant1Mask|plant2Mask|plant3Mask|plant4Mask|levelMask|masterMask);
-    switchPort ->OUT|=(plant0Mask|plant1Mask|plant2Mask|plant3Mask|plant4Mask|levelMask|masterMask);
+    switchPort ->SEL1&=~(sw0Mask|sw1Mask|sw2Mask|sw3Mask|sw4Mask|levelMask|masterMask);
+    switchPort ->SEL0&=~(sw0Mask|sw1Mask|sw2Mask|sw3Mask|sw4Mask|levelMask|masterMask);
+    switchPort ->DIR&=~(sw0Mask|sw1Mask|sw2Mask|sw3Mask|sw4Mask|levelMask|masterMask);
+    switchPort ->REN|=(sw0Mask|sw1Mask|sw2Mask|sw3Mask|sw4Mask|levelMask|masterMask);
+    switchPort ->OUT|=(sw0Mask|sw1Mask|sw2Mask|sw3Mask|sw4Mask|levelMask|masterMask);
 }
 SwitchStatuses SwitchStates={
          ._0isPressed=false,
@@ -41,7 +41,7 @@ void debounce(void){
 
 void checkAllSwitches(void){
     char switchValue;
-    switchValue =switchPort -> IN & plant0Mask;
+    switchValue =switchPort -> IN & sw0Mask;
     if(switchValue==0){ //pressed
         debounce();
         SwitchStates._0isPressed=1;
@@ -49,7 +49,7 @@ void checkAllSwitches(void){
         SwitchStates._0isPressed=0;
 
     }
-    switchValue= switchPort -> IN & plant1Mask;
+    switchValue= switchPort -> IN & sw1Mask;
     if(switchValue==0){ //pressed
         debounce();
         SwitchStates._1isPressed=1;
@@ -58,21 +58,21 @@ void checkAllSwitches(void){
         SwitchStates._1isPressed=0;
 
     }
-    switchValue= switchPort -> IN & plant2Mask;
+    switchValue= switchPort -> IN & sw2Mask;
     if(switchValue==0){ //pressed
         debounce();
         SwitchStates._2isPressed=1;
     }else{
         SwitchStates._2isPressed=0;
     }
-    switchValue= switchPort -> IN & plant3Mask;
+    switchValue= switchPort -> IN & sw3Mask;
     if(switchValue==0){ //pressed
         debounce();
         SwitchStates._3isPressed=1;
     }else{
         SwitchStates._3isPressed=0;
     }
-    switchValue= switchPort -> IN & plant4Mask;
+    switchValue= switchPort -> IN & sw4Mask;
     if(switchValue==0){ //pressed
         debounce();
         SwitchStates._4isPressed=1;
@@ -96,7 +96,7 @@ void checkAllSwitches(void){
 }
 
 bool checkSW0(void){
-   if(!(switchPort -> IN & plant0Mask)){ //pressed
+   if(!(switchPort -> IN & sw0Mask)){ //pressed
        debounce();
        SwitchStates._0isPressed=1;
    }else{
@@ -105,7 +105,7 @@ bool checkSW0(void){
    return SwitchStates._0isPressed;
 }
 bool checkSW1(void){
-   if(!(switchPort -> IN & plant1Mask)){ //pressed
+   if(!(switchPort -> IN & sw1Mask)){ //pressed
        debounce();
        SwitchStates._1isPressed=1;
    }else{
@@ -114,7 +114,7 @@ bool checkSW1(void){
    return SwitchStates._1isPressed;
 }
 bool checkSW2(void){
-   if(!(switchPort -> IN & plant2Mask)){ //pressed
+   if(!(switchPort -> IN & sw2Mask)){ //pressed
        debounce();
        SwitchStates._2isPressed=1;
    }else{
@@ -124,7 +124,7 @@ bool checkSW2(void){
 
 }
 bool checkSW3(void){
-   if(!(switchPort -> IN & plant3Mask)){ //pressed
+   if(!(switchPort -> IN & sw3Mask)){ //pressed
        debounce();
        SwitchStates._3isPressed=1;
    }else{
@@ -133,7 +133,7 @@ bool checkSW3(void){
    return SwitchStates._3isPressed;
 }
 bool checkSW4(void){
-   if(!(switchPort -> IN & plant4Mask)){ //pressed
+   if(!(switchPort -> IN & sw4Mask)){ //pressed
        debounce();
        SwitchStates._4isPressed=1;
    }else{
@@ -160,9 +160,4 @@ bool checkMasterSW(void){
    return SwitchStates.masterIsPressed;
 }
 
-void turnOnLED(uint16_t mask){
-    LEDPort->OUT |=mask;
-}
-void turnOffLED(uint16_t mask){
-    LEDPort->OUT &=~mask;
-}
+

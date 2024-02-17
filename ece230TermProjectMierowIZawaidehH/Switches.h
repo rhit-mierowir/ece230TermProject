@@ -12,12 +12,11 @@
 
 
 #define switchPort P4
-#define LEDPort P5
-#define plant0Mask 0b1
-#define plant1Mask 0b10
-#define plant2Mask 0b100
-#define plant3Mask 0b1000
-#define plant4Mask 0b10000
+#define sw0Mask 0b1
+#define sw1Mask 0b10
+#define sw2Mask 0b100
+#define sw3Mask 0b1000
+#define sw4Mask 0b10000
 #define levelMask 0b100000
 #define masterMask 0b1000000
 
@@ -48,8 +47,7 @@ bool checkMasterSW(void);
 
 void checkAllSwitches(void);
 
-void turnOffLED(uint16_t mask);
-void turnOnLED(uint16_t mask);
+
 
 
 

@@ -107,61 +107,9 @@ void main(void)
 	//initAllPumps();
 
 	while(1){
-	    //check if water level is low
-//	    if(readWaterLevelSensor()){
-//	        waterLevelLow();
-//	    }
-	    if(checkLevelSW()){
-	        turnOnLED(levelMask);
-	    }else{
-	        turnOffLED(levelMask);
-
-	    }
-	    if(checkSW0()){
-	        turnOnLED(plant0Mask);
-            turnOnPump(&Pump0);
-
-	    }else{
-	        turnOffLED(plant0Mask);
-            turnOffPump(&Pump0);
-
-	    }
-        if(checkSW1()){
-            turnOnLED(plant1Mask);
-            turnOnPump(&Pump1);
-
-        }else{
-            turnOffLED(plant1Mask);
-            turnOffPump(&Pump1);
-        }
-        if(checkSW2()){
-            turnOnLED(plant2Mask);
-            turnOnPump(&Pump2);
-        }else{
-            turnOffLED(plant2Mask);
-            turnOffPump(&Pump2);
-
-        }
-        if(checkSW3()){
-            turnOnLED(plant3Mask);
-            turnOnPump(&Pump3);
-
-        }else{
-            turnOffLED(plant3Mask);
-            turnOffPump(&Pump3);
-        }
-        if(checkSW4()){
-            turnOnLED(plant4Mask);
-            turnOnPump(&Pump4);
-        }else{
-            turnOffLED(plant4Mask);
-            turnOffPump(&Pump4);
-        }
-        if(checkMasterSW()){
-            turnOnLED(masterMask);
-        }else{
-            turnOffLED(masterMask);
-        }
+	    levelSwitchTasks();
+	    performAllPlantButtonsTasks();
+	    masterSwitchTasks();
 
 
 	}
