@@ -57,6 +57,7 @@ void startNewWaterCycle(TimerData *timer){
     startTimerCycle_interrupt(timer);
 }
 
+
 void plantButtonTasks(_Bool pressed, TimerData *timer){
     if(pressed){
         startNewWaterCycle(timer);
@@ -87,7 +88,7 @@ void masterSwitchTasks(void){
 }
 
 void levelSwitchTasks(void){
-    if(checkLevelSW()){
+    if(checkLevelSW()){ //pressed
         turnOnLED(ledLevelMask);
     }else{
         turnOffLED(ledLevelMask);
@@ -99,5 +100,23 @@ void turnOnLED(uint16_t mask){
 }
 void turnOffLED(uint16_t mask){
     LEDPort->OUT &=~mask;
+}
+
+//takes a timer object and a string with time value that we want to set
+/*
+ * Receives a timer and a string with a new time for watering
+ * calls stringToTime to convert the string to a TimeLength object and update the WateringLength object within the Timer
+ * updates the timer settings for the Timer based on this new value
+ */
+void setWaterTime(TimerData *timer, char *inputStr);
+void setWaterTime(TimerData *timer, char *inputStr){
+    stringToTime(inputStr, &(timer->TimerTimes.WateringLength));
+    updateTimerTickSettings(timer);
+}
+
+void setWaitTime(TimerData *timer, char *inputStr);
+void setWaitTime(TimerData *timer, char *inputStr){
+    stringToTime(inputStr, &(timer->TimerTimes.WaitLength));
+    updateTimerTickSettings(timer);
 }
 
