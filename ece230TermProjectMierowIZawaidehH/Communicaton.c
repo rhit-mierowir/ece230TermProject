@@ -67,8 +67,10 @@ bool    displayMessage = true; //true if need to display message again
 
 char    lastCharBeforeEnter = NULL_CHAR; //this is the last char
 
-char   UserInputBuffer[UserInputBufferLength+1];//make room for null character at end
+char    UserInputBuffer[UserInputBufferLength+1];//make room for null character at end
 int     UserInputBufferIndex = 0;//points to address of next unfilled index
+
+int     commandArgumentNumber = 0; //his is an int to allow commands to have multiple arguents
 
 //This is the message sent if the command was not found. %s replaced by command received.
 #define StringIfCommandNotRecognized "Command \"%s\" not recognized."
@@ -105,6 +107,8 @@ void clearLastCharBeforeEnter(){
 /*
  * Stores char provided into the UserInputBuffer if there is room for it.
  * If character is an enter character, don't add and return true otherwise false.
+ *
+ * TODO this should properly deal with backspaces
  */
 bool storeInUserInputBuffer(char nextChar);
 bool storeInUserInputBuffer(char nextChar){
@@ -134,7 +138,11 @@ void displayLastCharPrompt(char *Prompt){
     sendString(Buffer);
 }
 
-//========================================================= WATER PLANT ==================================================================================
+void displayUserInputBuffer(char *Prompt){
+    sendString(Prompt);
+    sendString(UserInputBuffer);
+
+//========================================================= WATER PLANT CMD_WaterPlant ===================================================================
 
 /* This command picks which plant to water and alters the timer to make that happen
  * WTR - water a plant, then restart delay
@@ -173,8 +181,88 @@ void completeWaterPlant(char timerSelection) {
     //Hand control to command
     ActiveState = Command;
 }
-
 // ============================================================ END WATER PLANT =========================================================================
+
+// ======================================================= SetTimerLength CMD_SetTimerLength ============================================================
+
+/*
+ * TME - Set the time of a timer.
+ *  | Do you want to set (W)atering Time or (D)elay time?
+ *  | Which Timer? [0-4]
+ *  | How Long? (input a time string. e.g. "1d 5h 3m 2s 1ms")
+ */
+void displaySetTimerLength(void);
+void startSetTimerLength(void);
+void addCharSetTimerLength(char nextChar);
+void completeSetTimerLength(char waterOrDelay, char timerSelection, char *TimeSetting);
+
+//character storing watering char
+char wateringChar = 0;
+
+void displaySetTimerLength(void){
+    switch(commandArgumentNumber){
+    case 0: //first argument, water or delay;
+        displayLastCharPrompt("Do you want to set the (W)atering Time or (D)elay Time?");
+        break;
+    case 1: //second argument, plant select;
+        displayLastCharPrompt("Which Plant To you want to set this time for? [0-4]");
+        break;
+    case 2: //third argument, length of delay;
+        displayUserInputBuffer("Type the time you want it to take. i.e. '5d 2h 45m 30s 230ms'")
+        break;
+    }
+
+    displayMessage = false; //mark display as performed
+}
+
+void startSetTimerLength(void){
+    ActiveState = SetTimerLength;
+    displayMessage = true;
+    wateringChar = 0;
+    commandArgumentNumber = 0;
+    clearLastCharBeforeEnter();
+    clearUserInputBuffer();
+}
+
+void addCharSetTimerLength(char nextChar){
+    switch(commandArgumentNumber){
+    case 0:
+        if(storeInLastCharUntilEnter(nextChar)){
+            //Save first value if enter pressed, advance to next argument
+            wateringChar = lastCharBeforeEnter;
+            commandArgumentNumber++;
+            clearLastCharBeforeEnter();
+        }
+        break;
+    case 1:
+        if(storeInLastCharUntilEnter(nextChar)){
+            //Save first value if enter pressed, advance to next argument
+            commandArgumentNumber++;
+            clearLastCharBeforeEnter();
+        }
+        break;
+    case 2:
+        if(storeInUserInputBuffer(nextChar)){
+            //all arguments provided, give response
+            completeSetTimerLength(wateringChar,lastCharBeforeEnter,UserInputBuffer);
+        }
+        break;
+    }
+    }
+    //prompt to display whenever recieves new character.
+    displayMessage = true;
+}
+
+//called once all requirements and need to perform tasks and return control
+void completeSetTimerLength(char waterOrDelay,char timerSelection,char *TimeSetting) {
+    sendString("Implement TimerSelection. Time string is:");
+    sendString(TimeSetting);
+
+    //Hand control to command
+    ActiveState = Command;
+}
+
+//=========================================================== END SetTimerLength ========================================================================
 
 // ======================================================== COMMAND BUFFER ================================================================================
 
