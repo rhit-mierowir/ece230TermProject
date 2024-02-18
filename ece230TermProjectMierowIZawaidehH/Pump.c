@@ -6,7 +6,7 @@
  */
 #include "Pump.h"
 #include <msp.h>
-
+#include "Procedures.h"
 //typedef struct{
 //    volatile _Bool IsActive;
 //    uint16_t *Port;
@@ -16,23 +16,32 @@
 
 PumpInfo Pump0 = {
     .IsActive = 0,
-    .Mask = PUMP_0_MASK
+    .Mask = PUMP_0_MASK,
+    .LEDMask =led0Mask
 };
 PumpInfo Pump1 = {
     .IsActive = 0,
-    .Mask = PUMP_1_MASK
+    .Mask = PUMP_1_MASK,
+    .LEDMask =led1Mask
+
 };
 PumpInfo Pump2 = {
     .IsActive = 0,
-    .Mask = PUMP_2_MASK
+    .Mask = PUMP_2_MASK,
+    .LEDMask =led2Mask
+
 };
 PumpInfo Pump3 = {
     .IsActive = 0,
-    .Mask = PUMP_3_MASK
+    .Mask = PUMP_3_MASK,
+    .LEDMask =led3Mask
+
 };
 PumpInfo Pump4 = {
     .IsActive = 0,
-    .Mask = PUMP_4_MASK
+    .Mask = PUMP_4_MASK,
+    .LEDMask =led4Mask
+
 };
 
 //This list stores all pumps, will be used to initializeAllPumps
@@ -69,9 +78,12 @@ void togglePump(PumpInfo *pump){
 void turnOffPump(PumpInfo *pump){
     pump->IsActive = 0;
     PUMP_PORT->OUT &= ~(pump->Mask);
+    turnOffLED(pump->LEDMask);
 }
 
 void turnOnPump(PumpInfo *pump){
     pump->IsActive = 1;
     PUMP_PORT->OUT |= (pump->Mask);
+    turnOnLED(pump->LEDMask);
+
 }

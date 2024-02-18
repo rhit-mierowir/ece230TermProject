@@ -5,6 +5,7 @@
 #include "WateringTimer.h"
 #include "LevelSensor.h"
 #include "uart_routines2024.h"
+#include "Switches.h"
 #include <stdio.h>
 #include <stdbool.h>
 
@@ -20,6 +21,7 @@
 //} //end debounce()
 
 extern TimerData Timer1;
+extern PumpInfo Pump0, Pump1, Pump2, Pump3, Pump4;
 
 
 /**
@@ -115,15 +117,15 @@ void main(void)
     TimeLength waitTime = {
                            .day = 0,
                            .hr = 0,
-                           .min = 2,
-                           .sec = 35,
+                           .min = 0,
+                           .sec = 10,
                            .ms = 0
     };
     TimeLength waterTime = {
                            .day = 0,
                            .hr = 0,
                            .min = 0,
-                           .sec = 11,
+                           .sec = 8,
                            .ms = 0
     };
 
@@ -146,10 +148,10 @@ void main(void)
 	//initAllPumps();
 
 	while(1){
-	    //check if water level is low
-	    if(readWaterLevelSensor()){
-	        waterLevelLow();
-	    }
+	    levelSwitchTasks();
+	    performAllPlantButtonsTasks();
+	    masterSwitchTasks();
+
 
 	}
 }

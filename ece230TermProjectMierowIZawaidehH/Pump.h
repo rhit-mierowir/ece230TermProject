@@ -16,6 +16,8 @@
 typedef struct{
     volatile _Bool IsActive;
     const uint16_t Mask;
+    volatile _Bool storedStateIsActive;
+    const uint16_t LEDMask;
 }PumpInfo;
 
 //#define PUMP_PORT P5

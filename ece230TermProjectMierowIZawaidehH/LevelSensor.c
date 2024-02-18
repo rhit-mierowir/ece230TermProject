@@ -43,14 +43,14 @@ bool readWaterLevelSensor()
 void waterLevelLow()
 {
     //Turn on LED1
-    //LED_PORT->OUT |= LED_MASK;
+    notif_LED_PORT->OUT |= notif_LED_MASK;
 
     //Other things to do when the water level is low
 }
 void waterLevelGood()
 {
     //Turn off LED1
-    //LED_PORT->OUT &= ~LED_MASK;
+    notif_LED_PORT->OUT &= ~notif_LED_MASK;
 
     //Other things to do when the water level is good
 }
