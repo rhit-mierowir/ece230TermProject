@@ -37,6 +37,16 @@ void evaluateCommandBuffer(void);
 void clearCommandBuffer();
 bool addCharToCommandBuffer(char addChar);
 
+void displayWaterPlant(void);
+void startWaterPlant(void);
+void addCharWaterPlant(char nextChar);
+void completeWaterPlant(char timerSelection);
+
+void displaySetTimerLength(void);
+void startSetTimerLength(void);
+void addCharSetTimerLength(char nextChar);
+void completeSetTimerLength(char waterOrDelay, char timerSelection, char *TimeSetting);
+
 //The
 #define NextLine "\r\n"
 #define NewLine '\n'
@@ -113,7 +123,7 @@ void clearLastCharBeforeEnter(){
 bool storeInUserInputBuffer(char nextChar);
 bool storeInUserInputBuffer(char nextChar){
     if (nextChar == NewLine) {return true;} //inform a newline was received
-    else if (UserInputBufferIndex < UserInputBufferLength) {return false;} //don't add if it would overflow buffer
+    else if (UserInputBufferIndex > UserInputBufferLength) {return false;} //don't add if it would overflow buffer
     else {
         UserInputBuffer[UserInputBufferIndex] = nextChar;
         UserInputBufferIndex++;
@@ -141,6 +151,7 @@ void displayLastCharPrompt(char *Prompt){
 void displayUserInputBuffer(char *Prompt){
     sendString(Prompt);
     sendString(UserInputBuffer);
+}
 
 //========================================================= WATER PLANT CMD_WaterPlant ===================================================================
 
@@ -148,10 +159,6 @@ void displayUserInputBuffer(char *Prompt){
  * WTR - water a plant, then restart delay
  *  | Which Plant? [0-4]
  */
-void displayWaterPlant(void);
-void startWaterPlant(void);
-void addCharWaterPlant(char nextChar);
-void completeWaterPlant(char timerSelection);
 
 void displayWaterPlant(void){
     displayLastCharPrompt("Which Plant To you want to water? [0-4]");
@@ -191,10 +198,6 @@ void completeWaterPlant(char timerSelection) {
  *  | Which Timer? [0-4]
  *  | How Long? (input a time string. e.g. "1d 5h 3m 2s 1ms")
  */
-void displaySetTimerLength(void);
-void startSetTimerLength(void);
-void addCharSetTimerLength(char nextChar);
-void completeSetTimerLength(char waterOrDelay, char timerSelection, char *TimeSetting);
 
 //character storing watering char
 char wateringChar = 0;
@@ -208,7 +211,7 @@ void displaySetTimerLength(void){
         displayLastCharPrompt("Which Plant To you want to set this time for? [0-4]");
         break;
     case 2: //third argument, length of delay;
-        displayUserInputBuffer("Type the time you want it to take. i.e. '5d 2h 45m 30s 230ms'")
+        displayUserInputBuffer("Type the time you want it to take. i.e. '5d 2h 45m 30s 230ms'");
         break;
     }
 
@@ -248,7 +251,6 @@ void addCharSetTimerLength(char nextChar){
         }
         break;
     }
-    }
     //prompt to display whenever recieves new character.
     displayMessage = true;
 }
@@ -284,7 +286,7 @@ void evaluateCommandBuffer(void){
             return;
 
         }else if(strcmp(CommandBuffer,CMD_SetTimerLength)==0){
-            ActiveState = SetTimerLength;
+            startSetTimerLength();
             clearCommandBuffer();
             return;
 
@@ -479,6 +481,9 @@ void displayCommunication(void){
     case WaterPlant:
         if (displayMessage) {displayWaterPlant();}
         break;
+    case SetTimerLength:
+        if (displayMessage) {displaySetTimerLength();}
+        break;
     case PrintAllToScreen:
         //performPrintAllToScreen();
         break;
@@ -496,6 +501,9 @@ void recieveCharForCommunication(char recieved){
         break;
     case WaterPlant:
         addCharWaterPlant(recieved);
+        break;
+    case SetTimerLength:
+        addCharSetTimerLength(recieved);
         break;
 
     //ignore any characters received here

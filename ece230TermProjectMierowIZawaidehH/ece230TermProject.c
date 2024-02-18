@@ -75,6 +75,43 @@ void main(void)
     recieveCharForCommunication('\n');
     displayCommunication();
 
+    addCharToCommandBuffer('t');
+    printf(CommandBuffer);
+    printf("\r\n");
+    addCharToCommandBuffer('m');
+    printf(CommandBuffer);
+    printf("\r\n");
+    addCharToCommandBuffer('e');
+    printf(CommandBuffer);
+    printf("\r\n");
+
+    evaluateCommandBuffer();
+    printf(CommandBuffer);
+    printf("\r\n");
+
+    displayCommunication();
+    displayCommunication();
+    recieveCharForCommunication('W');
+    displayCommunication();
+    recieveCharForCommunication('\n');
+    displayCommunication();
+    recieveCharForCommunication('1');
+    displayCommunication();
+    recieveCharForCommunication('\n');
+    displayCommunication();
+    recieveCharForCommunication('5');
+    displayCommunication();
+    recieveCharForCommunication('d');
+    displayCommunication();
+    recieveCharForCommunication(' ');
+    displayCommunication();
+    recieveCharForCommunication('3');
+    displayCommunication();
+    recieveCharForCommunication('s');
+    displayCommunication();
+    recieveCharForCommunication('\n');
+    displayCommunication();
+
     TimeLength waitTime = {
                            .day = 0,
                            .hr = 0,
