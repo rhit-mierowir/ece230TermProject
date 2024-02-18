@@ -36,83 +36,7 @@ void main(void)
 	initCommunication();
 
 	printf("hello world!\r\n");
-	printf(CommandBuffer);
-	printf("\r\n");
 
-	addCharToCommandBuffer('a');
-	printf(CommandBuffer);
-    printf("\r\n");
-    addCharToCommandBuffer('b');
-    printf(CommandBuffer);
-    printf("\r\n");
-    addCharToCommandBuffer('3');
-    printf(CommandBuffer);
-    printf("\r\n");
-    addCharToCommandBuffer('l');
-    printf(CommandBuffer);
-    printf("\r\n");
-
-    evaluateCommandBuffer();
-    printf(CommandBuffer);
-    printf("\r\n");
-
-    addCharToCommandBuffer('w');
-    printf(CommandBuffer);
-    printf("\r\n");
-    addCharToCommandBuffer('t');
-    printf(CommandBuffer);
-    printf("\r\n");
-    addCharToCommandBuffer('r');
-    printf(CommandBuffer);
-    printf("\r\n");
-
-    evaluateCommandBuffer();
-    printf(CommandBuffer);
-    printf("\r\n");
-
-    displayCommunication();
-    displayCommunication();
-    recieveCharForCommunication('2');
-    displayCommunication();
-    recieveCharForCommunication('\n');
-    displayCommunication();
-
-    addCharToCommandBuffer('t');
-    printf(CommandBuffer);
-    printf("\r\n");
-    addCharToCommandBuffer('m');
-    printf(CommandBuffer);
-    printf("\r\n");
-    addCharToCommandBuffer('e');
-    printf(CommandBuffer);
-    printf("\r\n");
-
-    evaluateCommandBuffer();
-    printf(CommandBuffer);
-    printf("\r\n");
-
-    displayCommunication();
-    displayCommunication();
-    recieveCharForCommunication('W');
-    displayCommunication();
-    recieveCharForCommunication('\n');
-    displayCommunication();
-    recieveCharForCommunication('1');
-    displayCommunication();
-    recieveCharForCommunication('\n');
-    displayCommunication();
-    recieveCharForCommunication('5');
-    displayCommunication();
-    recieveCharForCommunication('d');
-    displayCommunication();
-    recieveCharForCommunication(' ');
-    displayCommunication();
-    recieveCharForCommunication('3');
-    displayCommunication();
-    recieveCharForCommunication('s');
-    displayCommunication();
-    recieveCharForCommunication('\n');
-    displayCommunication();
 
     TimeLength waitTime = {
                            .day = 0,
@@ -148,6 +72,11 @@ void main(void)
 	    performAllPlantButtonsTasks();
 	    masterSwitchTasks();
 
+	    char recievedChar = GetChar_A0();
+	    if (recievedChar != NULL){
+	        recieveCharForCommunication(recievedChar);
+	    }
+	    displayCommunication();
 
 	}
 }

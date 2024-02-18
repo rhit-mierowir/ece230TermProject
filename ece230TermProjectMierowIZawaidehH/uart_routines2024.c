@@ -175,7 +175,7 @@ void EUSCIA0_IRQHandler(void)
 
         // Echo the received character back
         //  Note that reading RX buffer clears the flag and removes value from buffer
-        EUSCI_A0->TXBUF = EUSCI_A0->RXBUF;
+        //EUSCI_A0->TXBUF = EUSCI_A0->RXBUF;
     }
 }
 
@@ -189,6 +189,6 @@ void EUSCIA1_IRQHandler(void)
 
         // Echo the received character back
         //  Note that reading RX buffer clears the flag and removes value from buffer
-        EUSCI_A1->TXBUF = EUSCI_A1->RXBUF;
+        //EUSCI_A1->TXBUF = EUSCI_A1->RXBUF;
     }
 }

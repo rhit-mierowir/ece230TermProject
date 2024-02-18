@@ -51,6 +51,7 @@ void completeSetTimerLength(char waterOrDelay, char timerSelection, char *TimeSe
 #define NextLine "\r\n"
 #define NewLine '\n'
 #define Return '\r'
+#define CommandEndChar Return
 //The max length of strings for user input
 #define UserInputBufferLength 200
 
@@ -102,7 +103,7 @@ void sendString(char *Buffer){
  */
 bool storeInLastCharUntilEnter(char nextChar);
 bool storeInLastCharUntilEnter(char nextChar){
-    if (nextChar == NewLine){ return true;}
+    if (nextChar == CommandEndChar){ return true;}
     else{lastCharBeforeEnter=nextChar; return false;}
 }
 
@@ -122,7 +123,7 @@ void clearLastCharBeforeEnter(){
  */
 bool storeInUserInputBuffer(char nextChar);
 bool storeInUserInputBuffer(char nextChar){
-    if (nextChar == NewLine) {return true;} //inform a newline was received
+    if (nextChar == CommandEndChar) {return true;} //inform a newline was received
     else if (UserInputBufferIndex > UserInputBufferLength) {return false;} //don't add if it would overflow buffer
     else {
         UserInputBuffer[UserInputBufferIndex] = nextChar;
@@ -271,6 +272,13 @@ void completeSetTimerLength(char waterOrDelay,char timerSelection,char *TimeSett
 char CommandBuffer[COMMAND_LENGTH + 1]; //holds 3 characters for commands (+1 for null)
 unsigned short CommandBufferIndex = 0; // the index of the next character to add
 
+void displayCommandBuffer(){
+    char buffer[10+COMMAND_LENGTH+1]; // the space required to command length to the below string. (10 is length of string) (1 null char at end)
+    sprintf(buffer,"Command: %s",CommandBuffer);
+    sendString(buffer);
+    displayMessage = false;
+}
+
 void evaluateCommandBuffer(void){
     //If we are evaluating a full command
     if(CommandBufferIndex >= COMMAND_LENGTH){
@@ -350,7 +358,7 @@ bool addCharToCommandBuffer(char addChar){
                 //Clear That Character
                 CommandBuffer[CommandBufferIndex] = CLEAR_CHAR;
                 return true;
-            case '\n': //enter Pressed
+            case CommandEndChar: //enter Pressed
                 evaluateCommandBuffer();
                 return true;
             default:
@@ -371,7 +379,7 @@ bool addCharToCommandBuffer(char addChar){
             //Clear That Character
             CommandBuffer[CommandBufferIndex] = CLEAR_CHAR;
             return true;
-        case '\n': // hit enter
+        case CommandEndChar: // hit enter
             evaluateCommandBuffer();
             return true;
 
@@ -479,7 +487,7 @@ void displayCommunication(void);
 void displayCommunication(void){
     switch(ActiveState){
     case Command:
-        if (displayMessage) {sendString(CommandBuffer);} //display if need to display
+        if (displayMessage) {displayCommandBuffer();} //display if need to display
         break;
     case WaterPlant:
         if (displayMessage) {displayWaterPlant();}
