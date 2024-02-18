@@ -91,8 +91,8 @@ int     commandArgumentNumber = 0; //his is an int to allow commands to have mul
 // this is how we specify what string to send
 void sendString(char *Buffer);
 void sendString(char *Buffer){
-    printf(Buffer);
-    printf(NextLine);
+    SendCharArray_A0(Buffer);
+    SendCharArray_A0(NextLine);
 }
 
 
@@ -466,6 +466,9 @@ void initCommunication(){
     clearCommandBuffer();//reset the command buffer
     ActiveState = Command;
     displayMessage = true;
+
+    configHFXT();
+    ConfigureUART_A1();
 }
 
 

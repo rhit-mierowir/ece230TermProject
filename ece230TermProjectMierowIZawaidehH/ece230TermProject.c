@@ -141,10 +141,6 @@ void main(void)
 
 
 
-	char buffer[30];
-
-
-
 	//initAllPumps();
 
 	while(1){
