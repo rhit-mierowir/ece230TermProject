@@ -89,9 +89,16 @@ int     commandArgumentNumber = 0; //his is an int to allow commands to have mul
 #define StringIfCommandNotRecognizedLength 31
 //(strlen(StringIfCommandNotRecognized) -2 + COMMAND_LENGTH)
 
-// this is how we specify what string to send
+// this is how we specify what string to send, don't include new line
 void sendString(char *Buffer);
 void sendString(char *Buffer){
+    SendCharArray_A0(Buffer);
+}
+
+// this is how we specify what string to send
+//Includes a new line after message.
+void sendStringAndNewLine(char *Buffer);
+void sendStringAndNewLine(char *Buffer){
     SendCharArray_A0(Buffer);
     SendCharArray_A0(NextLine);
 }
@@ -143,15 +150,15 @@ void clearUserInputBuffer(){
 }
 
 void displayLastCharPrompt(char *Prompt){
-    sendString(Prompt);
+    sendStringAndNewLine(Prompt);
     char Buffer[12]; //13 is the length of the string below after sprintf evaluates it.
     sprintf(Buffer,"Selection: %c",lastCharBeforeEnter);
-    sendString(Buffer);
+    sendStringAndNewLine(Buffer);
 }
 
 void displayUserInputBuffer(char *Prompt){
-    sendString(Prompt);
-    sendString(UserInputBuffer);
+    sendStringAndNewLine(Prompt);
+    sendStringAndNewLine(UserInputBuffer);
 }
 
 //========================================================= WATER PLANT CMD_WaterPlant ===================================================================
@@ -184,7 +191,7 @@ void addCharWaterPlant(char nextChar){
 
 //called once all requirements and need to perform tasks and return control
 void completeWaterPlant(char timerSelection) {
-    sendString("Implement performWarterPlant");
+    sendStringAndNewLine("Implement performWarterPlant");
 
     //Hand control to command
     ActiveState = Command;
@@ -258,8 +265,8 @@ void addCharSetTimerLength(char nextChar){
 
 //called once all requirements and need to perform tasks and return control
 void completeSetTimerLength(char waterOrDelay,char timerSelection,char *TimeSetting) {
-    sendString("Implement TimerSelection. Time string is:");
-    sendString(TimeSetting);
+    sendStringAndNewLine("Implement TimerSelection. Time string is:");
+    sendStringAndNewLine(TimeSetting);
 
     //Hand control to command
     ActiveState = Command;
@@ -275,7 +282,7 @@ unsigned short CommandBufferIndex = 0; // the index of the next character to add
 void displayCommandBuffer(){
     char buffer[10+COMMAND_LENGTH+1]; // the space required to command length to the below string. (10 is length of string) (1 null char at end)
     sprintf(buffer,"Command: %s",CommandBuffer);
-    sendString(buffer);
+    sendStringAndNewLine(buffer);
     displayMessage = false;
 }
 
@@ -324,7 +331,7 @@ void evaluateCommandBuffer(void){
 
     //inform that no command was recognized
     //char* buffer[StringIfCommandNotRecognizedLength];
-    //sendString(sprintf(buffer,StringIfCommandNotRecognized,CommandBuffer));
+    //sendStringAndNewLine(sprintf(buffer,StringIfCommandNotRecognized,CommandBuffer));
 
     clearCommandBuffer(); //clear commands when finished
     return;
