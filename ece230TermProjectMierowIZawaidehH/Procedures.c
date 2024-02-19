@@ -117,7 +117,7 @@ void setWaitTime(TimerData *timer, char *inputStr){
     updateTimerTickSettings(timer);
 }
 
-//TODO printSettings - should return a string
+//For specified timer, print the water time, delay time, and whether the pump is currently on or off
 void printTimerSettings(TimerData *timer){
     sendString("\nWater Time: ");
     char timerSettingsBuffer[TimeStringOutputLength];
@@ -127,10 +127,10 @@ void printTimerSettings(TimerData *timer){
     if(timer->Pump->IsActive){
         sendString("\nCurrent Status: Watering, Pump ON");
     }else{
-        sendString("\nCurrent Status: Watering, Pump OFF");
+        sendString("\nCurrent Status: Delay, Pump OFF");
     }
 }
-
+//For timers 0-4, print the water time, delay time, and whether the pump is currently on or off
 void printAllTimerSettings(TimerData *timer){
     sendStringAndNewLine("\nTimer 0: ");
     printTimerSettings(&Timer0);
@@ -144,6 +144,7 @@ void printAllTimerSettings(TimerData *timer){
     printTimerSettings(&Timer4);
 }
 
+//print to user if water level is low/high and if master switch is enabled
 void printSystemSettings(void){
     sendString("\nWater Level: ");
     if(checkLevelSW()){
