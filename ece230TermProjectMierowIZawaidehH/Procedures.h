@@ -24,4 +24,7 @@ void setWaterTime(TimerData *timer, char *inputStr);
 void setWaitTime(TimerData *timer, char *inputStr);
 
 
+void printTimerSettings(TimerData *timer);
+void printAllTimerSettings(TimerData *timer);
+void printSystemSettings(void);
 #endif /* PROCEDURES_H_ */

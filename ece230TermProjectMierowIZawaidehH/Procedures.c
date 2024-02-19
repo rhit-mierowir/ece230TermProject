@@ -8,8 +8,9 @@
 #include "Pump.h"
 #include "WateringTimer.h"
 #include "Procedures.h"
+#include "Communication.h"
 #include <stdio.h> //sprintf
-#include <Switches_LEDs.h>
+#include "Switches_LEDs.h""
 
 
 extern PumpInfo Pump0, Pump1, Pump2, Pump3, Pump4;
@@ -117,8 +118,46 @@ void setWaitTime(TimerData *timer, char *inputStr){
 }
 
 //TODO printSettings - should return a string
-//returnTimerSettings();
+void printTimerSettings(TimerData *timer){
+    sendString("\nWater Time: ");
+    char timerSettingsBuffer[TimeStringOutputLength];
+    timeToString(timerSettingsBuffer, &(timer->TimerTimes.WateringLength),0);
+    sendString("\nDelay Time: ");
+    timeToString(timerSettingsBuffer,&( timer->TimerTimes.WaitLength),0);
+    if(timer->Pump->IsActive){
+        sendString("\nCurrent Status: Watering, Pump ON");
+    }else{
+        sendString("\nCurrent Status: Watering, Pump OFF");
+    }
+}
 
-//TODO printToUser
-void displayTimerSettings(TimerData *timer);
+void printAllTimerSettings(TimerData *timer){
+    sendStringAndNewLine("\nTimer 0: ");
+    printTimerSettings(&Timer0);
+    sendStringAndNewLine("\nTimer 1: ");
+    printTimerSettings(&Timer1);
+    sendStringAndNewLine("\nTimer 2: ");
+    printTimerSettings(&Timer2);
+    sendStringAndNewLine("\nTimer 3: ");
+    printTimerSettings(&Timer3);
+    sendStringAndNewLine("\nTimer 4:");
+    printTimerSettings(&Timer4);
+}
+
+void printSystemSettings(void){
+    sendString("\nWater Level: ");
+    if(checkLevelSW()){
+        sendStringAndNewLine("LOW, please refill water supply");
+    }else{
+        sendStringAndNewLine("HIGH");
+    }
+    sendString("\nMaster Switch: ");
+    if(masterSwitchCurrentStatus){
+        sendStringAndNewLine("ENABLED - Functions paused ");
+    }else{
+        sendStringAndNewLine("DISABLED - Functionality restored");
+    }
+}
+
+
 

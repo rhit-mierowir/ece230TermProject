@@ -8,6 +8,8 @@
 #ifndef COMMUNICATION_H_
 #define COMMUNICATION_H_
 
+void sendString(char *Buffer);
+void sendStringAndNewLine(char *Buffer);
 
 
 #endif /* COMMUNICATION_H_ */
