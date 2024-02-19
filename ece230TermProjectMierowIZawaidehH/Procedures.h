@@ -29,4 +29,8 @@ void masterSwitchTasks(void);
 void turnOffLED(uint16_t mask);
 void turnOnLED(uint16_t mask);
 
+void setWaterTime(TimerData *timer, char *inputStr);
+void setWaitTime(TimerData *timer, char *inputStr);
+
+
 #endif /* PROCEDURES_H_ */

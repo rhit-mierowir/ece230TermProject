@@ -9,6 +9,8 @@
 #include "WateringTimer.h"
 #include "Procedures.h"
 #include "Switches.h"
+#include <stdio.h> //sprintf
+
 
 extern PumpInfo Pump0, Pump1, Pump2, Pump3, Pump4;
 extern TimerData Timer0, Timer1, Timer2, Timer3, Timer4;
@@ -119,4 +121,10 @@ void setWaitTime(TimerData *timer, char *inputStr){
     stringToTime(inputStr, &(timer->TimerTimes.WaitLength));
     updateTimerTickSettings(timer);
 }
+
+//TODO printSettings - should return a string
+//returnTimerSettings();
+
+//TODO printToUser
+void displayTimerSettings(TimerData *timer);
 
