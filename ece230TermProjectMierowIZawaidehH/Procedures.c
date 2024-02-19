@@ -8,8 +8,8 @@
 #include "Pump.h"
 #include "WateringTimer.h"
 #include "Procedures.h"
-#include "Switches.h"
 #include <stdio.h> //sprintf
+#include <Switches_LEDs.h>
 
 
 extern PumpInfo Pump0, Pump1, Pump2, Pump3, Pump4;
@@ -97,12 +97,6 @@ void levelSwitchTasks(void){
     }
 }
 
-void turnOnLED(uint16_t mask){
-    LEDPort->OUT |=mask;
-}
-void turnOffLED(uint16_t mask){
-    LEDPort->OUT &=~mask;
-}
 
 //takes a timer object and a string with time value that we want to set
 /*

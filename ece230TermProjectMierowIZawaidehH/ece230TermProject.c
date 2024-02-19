@@ -3,11 +3,12 @@
 #include "Time.h"
 #include "Communication.h"
 #include "WateringTimer.h"
-#include "LevelSensor.h"
+#include "Switches_LEDs.h"
+#include "Procedures.h"
 #include "uart_routines2024.h"
-#include "Switches.h"
 #include <stdio.h>
 #include <stdbool.h>
+#include <Switches_LEDs.h>
 
 //// Set Debounce values for script.
 //#define SYSTEM_CLOCK_FREQUENCY 3000  //kHz  (3MHz)
@@ -55,7 +56,7 @@ void main(void)
 
     initWateringTimer();
     initAllPumps();
-    configureLevelSensor();
+    configureSwitches_LEDs();
     Timer1.TimerTimes.WaitLength=waitTime;
     Timer1.TimerTimes.WateringLength=waterTime;
     updateTimerTickSettings(&Timer1);
