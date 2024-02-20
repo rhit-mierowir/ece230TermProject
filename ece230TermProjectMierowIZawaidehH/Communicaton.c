@@ -92,15 +92,15 @@ int     commandArgumentNumber = 0; //his is an int to allow commands to have mul
 // this is how we specify what string to send, don't include new line
 void sendString(char *Buffer);
 void sendString(char *Buffer){
-    SendCharArray_A0(Buffer);
+    SendCharArray_A2(Buffer);
 }
 
 // this is how we specify what string to send
 //Includes a new line after message.
 void sendStringAndNewLine(char *Buffer);
 void sendStringAndNewLine(char *Buffer){
-    SendCharArray_A0(Buffer);
-    SendCharArray_A0(NextLine);
+    SendCharArray_A2(Buffer);
+    SendCharArray_A2(NextLine);
 }
 
 
@@ -483,7 +483,7 @@ void initCommunication(){
     displayMessage = true;
 
     configHFXT();
-    ConfigureUART_A1();
+    ConfigureUART_A2();
 }
 
 
