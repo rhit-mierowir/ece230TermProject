@@ -57,17 +57,6 @@ int     commandArgumentNumber = 0; //his is an int to allow commands to have mul
 #define StringIfCommandNotRecognizedLength 31
 //(strlen(StringIfCommandNotRecognized) -2 + COMMAND_LENGTH)
 
-// this is how we specify what string to send, don't include new line
-void sendString(char *Buffer){
-    SendCharArray_A2(Buffer);
-}
-
-// this is how we specify what string to send
-//Includes a new line after message.
-void sendStringAndNewLine(char *Buffer){
-    SendCharArray_A2(Buffer);
-    SendCharArray_A2(NextLine);
-}
 
 
 /*
@@ -75,8 +64,8 @@ void sendStringAndNewLine(char *Buffer){
  * If the character given is a newline character, it returns true and doesn't store it.
  */
 bool storeInLastCharUntilEnter(char nextChar){
-    if (nextChar == CommandEndChar){ return true;}
-    else{lastCharBeforeEnter=nextChar; return false;}
+    if (nextChar == CommandEndChar){return true;}
+    else{ lastCharBeforeEnter=nextChar; return false;}
 }
 
 /*
@@ -313,37 +302,38 @@ void evaluateCommandBuffer(void){
     //If we are evaluating a full command
     if(CommandBufferIndex >= COMMAND_LENGTH){
         //Check if it is a valid command
-        if (strcmp(CommandBuffer,CMD_WaterPlant)==0){
+        if (strcmp(CommandBuffer,CMD_WaterPlant)==0){ //implemented
             startWaterPlant();
             clearCommandBuffer();
             return;
 
-        }else if(strcmp(CommandBuffer,CMD_StopTimer)==0){
-            ActiveState = StopTimer;
+        }/* else if(strcmp(CommandBuffer,CMD_StopTimer)==0){
+            //ActiveState = StopTimer;
+            pauseFunctions();
             clearCommandBuffer();
             return;
 
-        }else if(strcmp(CommandBuffer,CMD_SetTimerLength)==0){
+        }*/ else if(strcmp(CommandBuffer,CMD_SetTimerLength)==0){ //implemented
             startSetTimerLength();
             clearCommandBuffer();
             return;
 
-        }else if(strcmp(CommandBuffer,CMD_DecideActionWhenEmpty)==0){
+        }/*else if(strcmp(CommandBuffer,CMD_DecideActionWhenEmpty)==0){
             ActiveState = DecideActionWhenEmpty;
             clearCommandBuffer();
             return;
 
-        }else if(strcmp(CommandBuffer,CMD_SaveTimerConfig)==0){
+        }*/ /*else if(strcmp(CommandBuffer,CMD_SaveTimerConfig)==0){
             ActiveState = SaveTimerConfig;
             clearCommandBuffer();
             return;
 
-        }else if(strcmp(CommandBuffer,CMD_ResetToTimerConfig)==0){
+        }*/ /*else if(strcmp(CommandBuffer,CMD_ResetToTimerConfig)==0){
             ActiveState = ResetToTimerConfig;
             clearCommandBuffer();
             return;
 
-        }else if(strcmp(CommandBuffer,CMD_PrintAllToScreen)==0){
+        }*/ else if(strcmp(CommandBuffer,CMD_PrintAllToScreen)==0){ //implemented
             ActiveState = PrintAllToScreen;
             clearCommandBuffer();
             return;
@@ -504,8 +494,19 @@ void initCommunication(){
     ActiveState = Command;
     displayMessage = true;
 
+#ifdef COMMUNICATION_USE_BLUETOOTH_UART
     configHFXT();
     ConfigureUART_A2();
+#endif
+
+#ifdef COMMUNICATION_USE_DIRECT_UART
+    configHFXT();
+    ConfigureUART_A0();
+#endif
+
+#ifdef COMMUNICATION_USE_CONSOLE
+    //No initialization needed
+#endif
 }
 
 
@@ -527,6 +528,7 @@ void displayCommunication(void){
         //performPrintAllToScreen();
         printAllTimerSettings();
         printSystemSettings();
+        ActiveState=Command;
         break;
     }
 }
@@ -553,3 +555,63 @@ void recieveCharForCommunication(char recieved){
     }
 }
 
+// this is how we specify what string to send, don't include new line
+void sendString(char *Buffer){
+
+#ifdef COMMUNICATION_USE_BLUETOOTH_UART
+    SendCharArray_A2(Buffer);
+#endif
+
+#ifdef COMMUNICATION_USE_DIRECT_UART
+    SendCharArray_A0(Buffer);
+#endif
+
+#ifdef COMMUNICATION_USE_CONSOLE
+    printf(Buffer);
+#endif
+}
+
+// this is how we specify what string to send
+//Includes a new line after message.
+void sendStringAndNewLine(char *Buffer){
+
+#ifdef COMMUNICATION_USE_BLUETOOTH_UART
+    SendCharArray_A2(Buffer);
+    SendCharArray_A2(NextLine);
+#endif
+
+#ifdef COMMUNICATION_USE_DIRECT_UART
+    SendCharArray_A0(Buffer);
+    SendCharArray_A0(NextLine);
+#endif
+
+#ifdef COMMUNICATION_USE_CONSOLE
+    printf(Buffer);
+    printf(NextLine);
+#endif
+}
+
+/*
+ * This is called to tell this module to read the next char for into communication.
+ */
+void readNextCharForCommunication(){
+    char recievedChar;
+
+#ifdef COMMUNICATION_USE_BLUETOOTH_UART
+    recievedChar = GetChar_A2();
+    if (recievedChar != NULL){
+        recieveCharForCommunication(recievedChar);
+    }
+#endif
+
+#ifdef COMMUNICATION_USE_DIRECT_UART
+    recievedChar = GetChar_A0();
+    if (recievedChar != NULL){
+        recieveCharForCommunication(recievedChar);
+    }
+#endif
+
+#ifdef COMMUNICATION_USE_CONSOLE
+    // Do not have a way for Console to input characters
+#endif
+}

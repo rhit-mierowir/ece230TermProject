@@ -96,10 +96,7 @@ void main(void)
 	    performAllPlantButtonsTasks();
 	    masterSwitchTasks();
 
-	    char recievedChar = GetChar_A2();
-	    if (recievedChar != NULL){
-	        recieveCharForCommunication(recievedChar);
-	    }
+	    readNextCharForCommunication();
 	    displayCommunication();
 
 	}
