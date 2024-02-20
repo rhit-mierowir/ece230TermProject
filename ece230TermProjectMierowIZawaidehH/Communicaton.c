@@ -302,37 +302,38 @@ void evaluateCommandBuffer(void){
     //If we are evaluating a full command
     if(CommandBufferIndex >= COMMAND_LENGTH){
         //Check if it is a valid command
-        if (strcmp(CommandBuffer,CMD_WaterPlant)==0){
+        if (strcmp(CommandBuffer,CMD_WaterPlant)==0){ //implemented
             startWaterPlant();
             clearCommandBuffer();
             return;
 
-        }else if(strcmp(CommandBuffer,CMD_StopTimer)==0){
-            ActiveState = StopTimer;
+        }/* else if(strcmp(CommandBuffer,CMD_StopTimer)==0){
+            //ActiveState = StopTimer;
+            pauseFunctions();
             clearCommandBuffer();
             return;
 
-        }else if(strcmp(CommandBuffer,CMD_SetTimerLength)==0){
+        }*/ else if(strcmp(CommandBuffer,CMD_SetTimerLength)==0){ //implemented
             startSetTimerLength();
             clearCommandBuffer();
             return;
 
-        }else if(strcmp(CommandBuffer,CMD_DecideActionWhenEmpty)==0){
+        }/*else if(strcmp(CommandBuffer,CMD_DecideActionWhenEmpty)==0){
             ActiveState = DecideActionWhenEmpty;
             clearCommandBuffer();
             return;
 
-        }else if(strcmp(CommandBuffer,CMD_SaveTimerConfig)==0){
+        }*/ /*else if(strcmp(CommandBuffer,CMD_SaveTimerConfig)==0){
             ActiveState = SaveTimerConfig;
             clearCommandBuffer();
             return;
 
-        }else if(strcmp(CommandBuffer,CMD_ResetToTimerConfig)==0){
+        }*/ /*else if(strcmp(CommandBuffer,CMD_ResetToTimerConfig)==0){
             ActiveState = ResetToTimerConfig;
             clearCommandBuffer();
             return;
 
-        }else if(strcmp(CommandBuffer,CMD_PrintAllToScreen)==0){
+        }*/ else if(strcmp(CommandBuffer,CMD_PrintAllToScreen)==0){ //implemented
             ActiveState = PrintAllToScreen;
             clearCommandBuffer();
             return;
@@ -527,6 +528,7 @@ void displayCommunication(void){
         //performPrintAllToScreen();
         printAllTimerSettings();
         printSystemSettings();
+        ActiveState=Command;
         break;
     }
 }
