@@ -137,10 +137,70 @@ void ConfigureUART_A1(void) {
 
     EUSCI_A1->CTLW0 &= ~EUSCI_A_CTLW0_SWRST;    // Initialize eUSCI
     EUSCI_A1->IFG &= ~EUSCI_A_IFG_RXIFG;        // Clear eUSCI RX interrupt flag
-    EUSCI_A1->IE |= EUSCI_A_IE_RXIE;            // Enable USCI_A0 RX interrupt
 
-    NVIC->ISER[0] |= (1)<<EUSCIA1_IRQn;
+    //No Interrupt.
+    //    EUSCI_A1->IE |= EUSCI_A_IE_RXIE;            // Enable USCI_A0 RX interrupt
+
+//    NVIC->ISER[0] |= (1)<<EUSCIA1_IRQn;
 } //end ConfigureUART_A1(void)
+
+
+#define A2_UCOS16_CONFIG 1
+#define A2_UCBRx_CONFIG 78
+#define A2_UCBRFx_CONFIG 2
+#define A2_UCBRSx_CONFIG 0
+
+#define UART_A2_PORT P3
+#define UART_A2_TX_MASK BIT3
+#define UART_A2_RX_MASK BIT2
+#define UART_A2_PIN_MASKS (UART_A2_TX_MASK | UART_A2_RX_MASK)
+
+void ConfigureUART_A2(void) {
+    /* Configure MCLK/SMCLK source to DCO, with DCO = 12MHz */
+    CS->KEY = CS_KEY_VAL;                   // Unlock CS module for register access
+    CS->CTL0 = 0;                           // Reset tuning parameters
+    CS->CTL0 = CS_CTL0_DCORSEL_3;           // Set DCO to 12MHz (nominal, center of 8-16MHz range)
+    CS->CTL1 = CS_CTL1_SELA_2 |             // Select ACLK = REFO
+            CS_CTL1_SELS_3 |                // SMCLK = DCO
+            CS_CTL1_SELM_3;                 // MCLK = DCO
+    CS->KEY = 0;                            // Lock CS module from unintended accesses
+
+    /* Configure UART pins */
+    UART_A2_PORT->SEL0 |= UART_A2_PIN_MASKS;                // set 2-UART pins as secondary function
+    UART_A2_PORT->SEL1 &= ~(UART_A2_PIN_MASKS);
+
+    /* Configure UART
+     *  Asynchronous UART mode, 8N1 (8-bit data, no parity, 1 stop bit),
+     *  LSB first, SMCLK clock source
+     */
+    EUSCI_A2->CTLW0 |= EUSCI_A_CTLW0_SWRST; // Put eUSCI in reset
+    EUSCI_A2->CTLW0 = EUSCI_A_CTLW0_SWRST | // Remain eUSCI in reset
+            EUSCI_A_CTLW0_SSEL__SMCLK;      // Configure eUSCI clock source for SMCLK
+
+    /* Baud Rate calculation
+     * Refer to Section 24.3.10 of Technical Reference manual
+     * BRCLK = 12000000, Baud rate = 9600
+     * N = fBRCLK / Baud rate = 12000000/9600 = 1250
+     * from Technical Reference manual Table 24-5:
+     *
+     *  lookup values for UCOS16, UCBRx, UCBRFx, and UCBRSx in Table 24-5
+     */
+    //  set clock prescaler in EUSCI_A2 baud rate control register
+    EUSCI_A2->BRW = A2_UCBRx_CONFIG;
+
+    //  configure baud clock modulation in EUSCI_A2 modulation control register;ob10001
+    EUSCI_A2->MCTLW = (A2_UCBRSx_CONFIG<<8)|(A2_UCBRFx_CONFIG<<4)|(A2_UCOS16_CONFIG);
+
+    EUSCI_A2->CTLW0 &= ~EUSCI_A_CTLW0_SWRST;    // Initialize eUSCI
+    EUSCI_A2->IFG &= ~EUSCI_A_IFG_RXIFG;        // Clear eUSCI RX interrupt flag
+    //EUSCI_A2->IE |= EUSCI_A_IE_RXIE;            // Enable USCI_A2 RX interrupt
+
+    // Enable global interrupt
+    //__enable_irq();
+
+    // Enable eUSCIA2 interrupt in NVIC module
+    //NVIC->ISER[0] = (1 << EUSCIA2_IRQn );
+}
 
 void SendCharArray_A0(char *Buffer) {
     unsigned int count;
@@ -148,6 +208,15 @@ void SendCharArray_A0(char *Buffer) {
     // Check if the TX buffer is empty first
       while(!(EUSCI_A0->IFG & EUSCI_A_IFG_TXIFG));
       EUSCI_A0->TXBUF = Buffer[count];
+    }   //end for()
+} // end SendCharArray(char *Buffer)
+
+void SendCharArray_A2(char *Buffer) {
+    unsigned int count;
+    for (count=0; count<strlen(Buffer); count++) {
+    // Check if the TX buffer is empty first
+      while(!(EUSCI_A2->IFG & EUSCI_A_IFG_TXIFG));
+      EUSCI_A2->TXBUF = Buffer[count];
     }   //end for()
 } // end SendCharArray(char *Buffer)
 
@@ -165,13 +234,27 @@ char GetChar_A0(void) { //polling
         return ReceivedChar;
 } //end GetChar(void)
 
+//get a ASCII character from UART
+//this is a blocking call
+char GetChar_A2(void) { //polling
+    char ReceivedChar;
+//blocking call
+//        while(!(EUSCI_A0->IFG & EUSCI_A_IFG_RXIFG));
+//        ReceivedChar=EUSCI_A0->RXBUF;
+//        return ReceivedChar;
+    if ((EUSCI_A2->IFG & EUSCI_A_IFG_RXIFG)==EUSCI_A_IFG_RXIFG)
+         ReceivedChar=EUSCI_A2->RXBUF;
+    else ReceivedChar=NULL;
+        return ReceivedChar;
+} //end GetChar(void)
+
 // UART interrupt service routine
 void EUSCIA0_IRQHandler(void)
 {
     if (EUSCI_A0->IFG & EUSCI_A_IFG_RXIFG)
     {
         // Check if the TX buffer is empty first
-        while(!(EUSCI_A0->IFG & EUSCI_A_IFG_TXIFG));
+        //while(!(EUSCI_A0->IFG & EUSCI_A_IFG_TXIFG));
 
         // Echo the received character back
         //  Note that reading RX buffer clears the flag and removes value from buffer
@@ -185,10 +268,24 @@ void EUSCIA1_IRQHandler(void)
     if (EUSCI_A1->IFG & EUSCI_A_IFG_RXIFG)
     {
         // Check if the TX buffer is empty first
-        while(!(EUSCI_A1->IFG & EUSCI_A_IFG_TXIFG));
+        //while(!(EUSCI_A1->IFG & EUSCI_A_IFG_TXIFG));
 
         // Echo the received character back
         //  Note that reading RX buffer clears the flag and removes value from buffer
         //EUSCI_A1->TXBUF = EUSCI_A1->RXBUF;
     }
+}
+
+// UART interrupt service routine
+void EUSCIA2_IRQHandler(void)
+{
+    if (EUSCI_A2->IFG & EUSCI_A_IFG_RXIFG)
+        {
+            // Check if the TX buffer is empty first
+            //while(!(EUSCI_A2->IFG & EUSCI_A_IFG_TXIFG));
+
+            // Echo the received character back
+            //  Note that reading RX buffer clears the flag and removes value from buffer
+            //EUSCI_A2->TXBUF = EUSCI_A2->RXBUF;
+        }
 }

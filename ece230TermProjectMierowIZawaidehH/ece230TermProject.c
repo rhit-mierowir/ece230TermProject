@@ -31,9 +31,9 @@ extern PumpInfo Pump0, Pump1, Pump2, Pump3, Pump4;
 void main(void)
 {
 	WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;		// stop watchdog timer
-	ConfigureUART_A0();
+	ConfigureUART_A2();
 
-    extern char CommandBuffer[];
+    //extern char CommandBuffer[];
 	initCommunication();
 
 	printf("hello world!\r\n");
@@ -73,7 +73,7 @@ void main(void)
 	    performAllPlantButtonsTasks();
 	    masterSwitchTasks();
 
-	    char recievedChar = GetChar_A0();
+	    char recievedChar = GetChar_A2();
 	    if (recievedChar != NULL){
 	        recieveCharForCommunication(recievedChar);
 	    }
