@@ -26,8 +26,8 @@
 void PlayerConfiguraion(void);
 void PlayNote (unsigned int CurrentNote);
 void  PlayAllNotesOnce(const uint16_t notelist[]);
-#define NoteDuration 1000000
-
+#define NoteDuration 10000
+void notifyUserLowWaterBuzzer(void);
 //rest note, one shot signal of 1/48MHz pulse width is generated,
 //which is not audible
 //This is not the inserted rest for 100ms when Speaker should remain low voltage.

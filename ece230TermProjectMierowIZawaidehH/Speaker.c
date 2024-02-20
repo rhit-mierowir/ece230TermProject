@@ -39,7 +39,8 @@ void PlayNote (unsigned int CurrentNote) {
 
 //================================
 //Play the note list once to test the notes
-const uint16_t NotesSequence[] = {NOTEF4s, NOTEG5, RestNote, NOTEF4s, NOTEA4, NOTEB4, NOTEC5s, NOTED5, NOTEE5, NOTEF5s, NOTEG5, NULL};
+//const uint16_t NotesSequence[] = {NOTEF4s, NOTEG5, RestNote, NOTEF4s, NOTEA4, NOTEB4, NOTEC5s, NOTED5, NOTEE5, NOTEF5s, NOTEG5, NULL};
+const uint16_t NotesSequence[] = {NOTEF4s, RestNote, NOTEG5, NULL};
 void  PlayAllNotesOnce(const uint16_t notelist[]){
     static char noteindex;
     unsigned int delay;
@@ -51,3 +52,7 @@ void  PlayAllNotesOnce(const uint16_t notelist[]){
      }
     } //end while()
 }//end PlayAllNotesOnce(void)
+
+void notifyUserLowWaterBuzzer(void){
+    PlayAllNotesOnce(NotesSequence);
+}

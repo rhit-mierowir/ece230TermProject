@@ -8,6 +8,7 @@
 #include "Pump.h"
 #include "WateringTimer.h"
 #include "Procedures.h"
+#include "Speaker.h"
 #include "Communication.h"
 #include <stdio.h> //sprintf
 #include "Switches_LEDs.h""
@@ -92,6 +93,7 @@ void masterSwitchTasks(void){
 
 void levelSwitchTasks(void){
     if(checkLevelSW()){ //pressed
+        notifyUserLowWaterBuzzer();
         turnOnLED(ledLevelMask);
     }else{
         turnOffLED(ledLevelMask);
