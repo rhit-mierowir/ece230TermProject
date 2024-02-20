@@ -13,7 +13,8 @@
  *      P1.3/UCA0TXD |----> RX PC
  *
  *  Settings:
- *      38400 8E1
+ *      38400 8E1 - A0
+ *      9600  8N1 - A2 (Bluetooth)
  *
  *
  */
