@@ -1,11 +1,12 @@
 #include "Communication.h"
-
+#include "Procedures.h"
 #include "Time.h"
 #include "uart_routines2024.h"
 #include "WateringTimer.h"
 #include <stdio.h> //sprintf(), strcmp();
 #include <stdbool.h> //true, false, bool
 #include <string.h> //strlen(),
+#include"csHFXT.h"
 
 
 /*
@@ -29,6 +30,7 @@
  */
 
 
+extern TimerData Timer0, Timer1, Timer2, Timer3, Timer4;
 
 enum CommunicationState{  Command,
                           WaterPlant,
@@ -151,7 +153,26 @@ void addCharWaterPlant(char nextChar){
 
 //called once all requirements and need to perform tasks and return control
 void completeWaterPlant(char timerSelection) {
-    sendStringAndNewLine("Implement performWarterPlant");
+    switch (timerSelection){
+    case 0:
+        startNewWaterCycle(&Timer0);
+        break;
+    case 1:
+        startNewWaterCycle(&Timer1);
+        break;
+    case 2:
+        startNewWaterCycle(&Timer2);
+        break;
+    case 3:
+        startNewWaterCycle(&Timer3);
+        break;
+    case 4:
+        startNewWaterCycle(&Timer4);
+        break;
+    default:
+        break;
+    }
+    sendStringAndNewLine("Implemented: Perform Water Plant");
 
     //Hand control to command
     ActiveState = Command;
@@ -222,11 +243,53 @@ void addCharSetTimerLength(char nextChar){
     //prompt to display whenever recieves new character.
     displayMessage = true;
 }
-
+//TODO implement
 //called once all requirements and need to perform tasks and return control
 void completeSetTimerLength(char waterOrDelay,char timerSelection,char *TimeSetting) {
     sendStringAndNewLine("Implement TimerSelection. Time string is:");
     sendStringAndNewLine(TimeSetting);
+    switch (timerSelection){
+    case 0:
+        if(waterOrDelay=='W'){
+            stringToTime(TimeSetting,&(Timer0.TimerTimes.WateringLength));
+        }else if(waterOrDelay=='D'){
+            stringToTime(TimeSetting,&(Timer0.TimerTimes.WaitLength));
+        }
+        updateTimerTickSettings(&Timer0);
+        break;
+    case 1:
+        if(waterOrDelay=='W'){
+            stringToTime(TimeSetting,&(Timer1.TimerTimes.WateringLength));
+        }else if(waterOrDelay=='D'){
+            stringToTime(TimeSetting,&(Timer1.TimerTimes.WaitLength));
+        }
+        updateTimerTickSettings(&Timer1);
+        break;
+    case 2:
+        if(waterOrDelay=='W'){
+            stringToTime(TimeSetting,&(Timer2.TimerTimes.WateringLength));
+        }else if(waterOrDelay=='D'){
+            stringToTime(TimeSetting,&(Timer2.TimerTimes.WaitLength));
+        }
+        updateTimerTickSettings(&Timer2);
+        break;
+    case 3:
+        if(waterOrDelay=='W'){
+            stringToTime(TimeSetting,&(Timer3.TimerTimes.WateringLength));
+        }else if(waterOrDelay=='D'){
+            stringToTime(TimeSetting,&(Timer3.TimerTimes.WaitLength));
+        }
+        updateTimerTickSettings(&Timer3);
+        break;
+    case 4:
+        if(waterOrDelay=='W'){
+            stringToTime(TimeSetting,&(Timer4.TimerTimes.WateringLength));
+        }else if(waterOrDelay=='D'){
+            stringToTime(TimeSetting,&(Timer4.TimerTimes.WaitLength));
+        }
+        updateTimerTickSettings(&Timer4);
+        break;
+    }
 
     //Hand control to command
     ActiveState = Command;
@@ -462,6 +525,8 @@ void displayCommunication(void){
         break;
     case PrintAllToScreen:
         //performPrintAllToScreen();
+        printAllTimerSettings();
+        printSystemSettings();
         break;
     }
 }
