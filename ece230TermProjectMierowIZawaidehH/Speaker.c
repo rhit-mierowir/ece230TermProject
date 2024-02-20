@@ -6,6 +6,11 @@
  */
 
 #include "Speaker.h"
+/**********************
+ * CODE FROM THIS FILE IS SOURCED FROM PROJECT 3
+ * Created from Dr. JianJian Song's Project 3 template
+ * and Hannah Zawaideh's Project 3 modifications
+ **********************/
 
 //===================================
 //Configure Speaker as Timer A0 CCR1 output pin

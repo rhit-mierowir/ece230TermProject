@@ -93,10 +93,14 @@ void masterSwitchTasks(void){
 
 void levelSwitchTasks(void){
     if(checkLevelSW()){ //pressed
-        notifyUserLowWaterBuzzer();
         turnOnLED(ledLevelMask);
+        SpeakerPort->DIR |= Speaker;     // set P2.4 as output
+        notifyUserLowWaterBuzzer();
+
     }else{
         turnOffLED(ledLevelMask);
+        //switch Speaker to input
+       SpeakerPort->DIR &= ~Speaker;     // set P2.4 as input
     }
 }
 
@@ -123,9 +127,9 @@ void setWaitTime(TimerData *timer, char *inputStr){
 void printTimerSettings(TimerData *timer){
     sendString("\nWater Time: ");
     char timerSettingsBuffer[TimeStringOutputLength];
-    timeToString(timerSettingsBuffer, &(timer->TimerTimes.WateringLength),0);
+    timeToString(timerSettingsBuffer, &(timer->TimerTimes.WateringLength),1);
     sendString("\nDelay Time: ");
-    timeToString(timerSettingsBuffer,&( timer->TimerTimes.WaitLength),0);
+    timeToString(timerSettingsBuffer, &(timer->TimerTimes.WaitLength),1);
     if(timer->Pump->IsActive){
         sendString("\nCurrent Status: Watering, Pump ON");
     }else{

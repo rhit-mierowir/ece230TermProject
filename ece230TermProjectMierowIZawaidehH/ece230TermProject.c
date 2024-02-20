@@ -62,11 +62,14 @@ void main(void)
     configureSwitches_LEDs();
     PlayerConfiguration();
 
-    stringToTime("10s",&(Timer1.TimerTimes.WateringLength));
-    stringToTime("2m 5s",&(Timer1.TimerTimes.WaitLength));
-    updateTimerTickSettings(&Timer1);
+    turnOffLED(ledMasterMask);
+    //restoreFunctions();
 
-    stringToTime("5s",&(Timer1.TimerTimes.WateringLength));
+    stringToTime("10s",&(Timer0.TimerTimes.WateringLength));
+    stringToTime("2m 5s",&(Timer0.TimerTimes.WaitLength));
+    updateTimerTickSettings(&Timer0);
+
+    stringToTime("8s",&(Timer1.TimerTimes.WateringLength));
     stringToTime("45s",&(Timer1.TimerTimes.WaitLength));
     updateTimerTickSettings(&Timer1);
 
@@ -96,7 +99,7 @@ void main(void)
 	while(1){
 	    levelSwitchTasks();
 	    performAllPlantButtonsTasks();
-	    masterSwitchTasks();
+	   // masterSwitchTasks();
 
 	    readNextCharForCommunication();
 	    displayCommunication();

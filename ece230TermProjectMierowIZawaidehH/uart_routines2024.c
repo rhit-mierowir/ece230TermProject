@@ -5,6 +5,12 @@
  *      Author: song
  */
 
+/**********************
+ * CODE FROM THIS FILE IS SOURCED FROM PROJECT 5
+ * Created from Dr. JianJian Song's Project 5 template
+ * and Isaac Mierow's Project 5 modifications
+ * and modified code from Exercise 07x01
+ **********************/
 #include <uart_routines2024.h>
 
 /*  Currently set to send information on Pins:

@@ -239,41 +239,41 @@ void completeSetTimerLength(char waterOrDelay,char timerSelection,char *TimeSett
     sendStringAndNewLine(TimeSetting);
     switch (timerSelection){
     case 0:
-        if(waterOrDelay=='W'){
+        if(waterOrDelay=='W' || waterOrDelay=='w'){
             stringToTime(TimeSetting,&(Timer0.TimerTimes.WateringLength));
-        }else if(waterOrDelay=='D'){
+        }else if(waterOrDelay=='D' || waterOrDelay=='d'){
             stringToTime(TimeSetting,&(Timer0.TimerTimes.WaitLength));
         }
         updateTimerTickSettings(&Timer0);
         break;
     case 1:
-        if(waterOrDelay=='W'){
+        if(waterOrDelay=='W' || waterOrDelay=='w'){
             stringToTime(TimeSetting,&(Timer1.TimerTimes.WateringLength));
-        }else if(waterOrDelay=='D'){
+        }else if(waterOrDelay=='D' || waterOrDelay=='d'){
             stringToTime(TimeSetting,&(Timer1.TimerTimes.WaitLength));
         }
         updateTimerTickSettings(&Timer1);
         break;
     case 2:
-        if(waterOrDelay=='W'){
+        if(waterOrDelay=='W' || waterOrDelay=='w'){
             stringToTime(TimeSetting,&(Timer2.TimerTimes.WateringLength));
-        }else if(waterOrDelay=='D'){
+        }else if(waterOrDelay=='D' || waterOrDelay=='d'){
             stringToTime(TimeSetting,&(Timer2.TimerTimes.WaitLength));
         }
         updateTimerTickSettings(&Timer2);
         break;
     case 3:
-        if(waterOrDelay=='W'){
+        if(waterOrDelay=='W' || waterOrDelay=='w'){
             stringToTime(TimeSetting,&(Timer3.TimerTimes.WateringLength));
-        }else if(waterOrDelay=='D'){
+        }else if(waterOrDelay=='D' || waterOrDelay=='d'){
             stringToTime(TimeSetting,&(Timer3.TimerTimes.WaitLength));
         }
         updateTimerTickSettings(&Timer3);
         break;
     case 4:
-        if(waterOrDelay=='W'){
+        if(waterOrDelay=='W' || waterOrDelay=='w'){
             stringToTime(TimeSetting,&(Timer4.TimerTimes.WateringLength));
-        }else if(waterOrDelay=='D'){
+        }else if(waterOrDelay=='D' || waterOrDelay=='d'){
             stringToTime(TimeSetting,&(Timer4.TimerTimes.WaitLength));
         }
         updateTimerTickSettings(&Timer4);
