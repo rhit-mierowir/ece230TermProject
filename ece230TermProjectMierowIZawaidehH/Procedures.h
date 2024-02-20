@@ -16,6 +16,7 @@ void pauseFunctions(void);
 void restoreFunctions(void);
 void startNewWaterCycle(TimerData *timer);
 void levelSwitchTasks(void);
+void performAllPlantButtonsTasks(void);
 void masterSwitchTasks(void);
 
 
@@ -25,6 +26,6 @@ void setWaitTime(TimerData *timer, char *inputStr);
 
 
 void printTimerSettings(TimerData *timer);
-void printAllTimerSettings(TimerData *timer);
+void printAllTimerSettings();
 void printSystemSettings(void);
 #endif /* PROCEDURES_H_ */

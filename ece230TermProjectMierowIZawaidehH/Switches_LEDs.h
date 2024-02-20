@@ -13,19 +13,20 @@
 
 
 
-#define led0Mask 0b1
-#define led1Mask 0b10
-#define led2Mask 0b100
-#define led3Mask 0b1000
-#define led4Mask 0b10000
-#define ledLevelMask 0b100000
-#define ledMasterMask 0b1000000
+#define led0Mask 0b1 //pin 0
+#define led1Mask 0b10 //pin 1
+#define led2Mask 0b100 //pin 2
+//edited to reflect P5.3 not being available
+#define led3Mask 0b10000 //pin4
+#define led4Mask 0b100000 //pin 5
+#define ledMasterMask 0b10000000 //pin 7
+#define ledLevelMask 0b1000000 //pin 6
 #define LEDPort P5
 void turnOffLED(uint16_t mask);
 void turnOnLED(uint16_t mask);
 void configureAllLEDs(void);
 
-#define DEBOUNCE_PERIOD 0.005 // ms
+#define DEBOUNCE_PERIOD 5 // ms
 #define DEBOUNCE_LOOP_CYCLES 2
 #define DEBOUNCE_COUNT DEBOUNCE_PERIOD*SMCLK/DEBOUNCE_LOOP_CYCLES //TODO check value
 void debounce(void);

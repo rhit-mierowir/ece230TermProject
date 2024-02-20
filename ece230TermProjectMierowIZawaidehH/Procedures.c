@@ -131,7 +131,7 @@ void printTimerSettings(TimerData *timer){
     }
 }
 //For timers 0-4, print the water time, delay time, and whether the pump is currently on or off
-void printAllTimerSettings(TimerData *timer){
+void printAllTimerSettings(void){
     sendStringAndNewLine("\nTimer 0: ");
     printTimerSettings(&Timer0);
     sendStringAndNewLine("\nTimer 1: ");

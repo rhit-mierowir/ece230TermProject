@@ -20,13 +20,14 @@ typedef struct{
     const uint16_t LEDMask;
 }PumpInfo;
 
-//#define PUMP_PORT P5
-#define PUMP_PORT P5
+//#define PUMP_PORT P6
+#define PUMP_PORT P6
+//pump masks match assigned pins for hardware
 #define PUMP_0_MASK 0b1 << 0
 #define PUMP_1_MASK 0b1 << 1
-#define PUMP_2_MASK 0b1 << 2
-#define PUMP_3_MASK 0b1 << 3
-#define PUMP_4_MASK 0b1 << 4
+#define PUMP_2_MASK 0b1 << 4
+#define PUMP_3_MASK 0b1 << 5
+#define PUMP_4_MASK 0b1 << 6
 
 
 
