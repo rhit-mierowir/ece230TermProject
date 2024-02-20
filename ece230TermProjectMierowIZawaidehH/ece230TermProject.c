@@ -5,6 +5,7 @@
 #include "WateringTimer.h"
 #include "Switches_LEDs.h"
 #include "Procedures.h"
+#include "Speaker.h"
 #include "uart_routines2024.h"
 #include <stdio.h>
 #include <stdbool.h>
@@ -59,6 +60,7 @@ void main(void)
     initWateringTimer();
     initAllPumps();
     configureSwitches_LEDs();
+    PlayerConfiguration();
 
     stringToTime("10s",&(Timer1.TimerTimes.WateringLength));
     stringToTime("2m 5s",&(Timer1.TimerTimes.WaitLength));

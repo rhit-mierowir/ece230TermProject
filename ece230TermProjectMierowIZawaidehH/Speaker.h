@@ -23,10 +23,10 @@
 #define SpeakerPort P2
 #define Speaker BIT4  //P2.4
 
-void PlayerConfiguraion(void);
+void PlayerConfiguration(void);
 void PlayNote (unsigned int CurrentNote);
 void  PlayAllNotesOnce(const uint16_t notelist[]);
-#define NoteDuration 10000
+#define NoteDuration 100000
 void notifyUserLowWaterBuzzer(void);
 //rest note, one shot signal of 1/48MHz pulse width is generated,
 //which is not audible
