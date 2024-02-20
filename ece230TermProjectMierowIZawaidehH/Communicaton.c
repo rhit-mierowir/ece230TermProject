@@ -27,42 +27,8 @@
  * RST - Reset by loading all timers from Configurations
  * PNT - Print all settings for the timers and sensors
  */
-#define COMMAND_LENGTH 3
-#define CLEAR_CHAR ' '
-#define NULL_CHAR  0
-// number subtracted to lowercase numbers to make uppercase
-#define LOWERCASE_TO_UPPERCASE_SHIFT  0x20
 
-void evaluateCommandBuffer(void);
-void clearCommandBuffer();
-bool addCharToCommandBuffer(char addChar);
 
-void displayWaterPlant(void);
-void startWaterPlant(void);
-void addCharWaterPlant(char nextChar);
-void completeWaterPlant(char timerSelection);
-
-void displaySetTimerLength(void);
-void startSetTimerLength(void);
-void addCharSetTimerLength(char nextChar);
-void completeSetTimerLength(char waterOrDelay, char timerSelection, char *TimeSetting);
-
-//The
-#define NextLine "\r\n"
-#define NewLine '\n'
-#define Return '\r'
-#define CommandEndChar Return
-//The max length of strings for user input
-#define UserInputBufferLength 200
-
-//Declare all of the command strings
-#define CMD_WaterPlant              "WTR"
-#define CMD_StopTimer               "STP"
-#define CMD_SetTimerLength          "TME"
-#define CMD_DecideActionWhenEmpty   "EMP"
-#define CMD_SaveTimerConfig         "SVE"
-#define CMD_ResetToTimerConfig      "RST"
-#define CMD_PrintAllToScreen        "PNT"
 
 enum CommunicationState{  Command,
                           WaterPlant,
@@ -90,14 +56,12 @@ int     commandArgumentNumber = 0; //his is an int to allow commands to have mul
 //(strlen(StringIfCommandNotRecognized) -2 + COMMAND_LENGTH)
 
 // this is how we specify what string to send, don't include new line
-void sendString(char *Buffer);
 void sendString(char *Buffer){
     SendCharArray_A2(Buffer);
 }
 
 // this is how we specify what string to send
 //Includes a new line after message.
-void sendStringAndNewLine(char *Buffer);
 void sendStringAndNewLine(char *Buffer){
     SendCharArray_A2(Buffer);
     SendCharArray_A2(NextLine);
@@ -108,7 +72,6 @@ void sendStringAndNewLine(char *Buffer){
  * Stores the char provided in the lastCharBeforeReturn variable.
  * If the character given is a newline character, it returns true and doesn't store it.
  */
-bool storeInLastCharUntilEnter(char nextChar);
 bool storeInLastCharUntilEnter(char nextChar){
     if (nextChar == CommandEndChar){ return true;}
     else{lastCharBeforeEnter=nextChar; return false;}
@@ -117,7 +80,6 @@ bool storeInLastCharUntilEnter(char nextChar){
 /*
  * Clears the Last Character variable. Sets to NULL_CHAR
  */
-void clearLastCharBeforeEnter();
 void clearLastCharBeforeEnter(){
     lastCharBeforeEnter = NULL_CHAR;
 }
@@ -128,7 +90,6 @@ void clearLastCharBeforeEnter(){
  *
  * TODO this should properly deal with backspaces
  */
-bool storeInUserInputBuffer(char nextChar);
 bool storeInUserInputBuffer(char nextChar){
     if (nextChar == CommandEndChar) {return true;} //inform a newline was received
     else if (UserInputBufferIndex > UserInputBufferLength) {return false;} //don't add if it would overflow buffer
@@ -142,7 +103,6 @@ bool storeInUserInputBuffer(char nextChar){
 /*
  * Clears UserInputBuffer by decrementing from index, replacing with null characters.
  */
-void clearUserInputBuffer();
 void clearUserInputBuffer(){
     for(;UserInputBufferIndex>0;UserInputBufferIndex--){
         UserInputBuffer[UserInputBufferIndex-1] = NULL_CHAR; //clear the character moving to
@@ -476,7 +436,6 @@ bool addCharToCommandBuffer(char addChar){
 /*
  * This initializes the communication module. Run this prior to using.
  */
-void initCommunication();
 void initCommunication(){
     clearCommandBuffer();//reset the command buffer
     ActiveState = Command;
@@ -490,7 +449,6 @@ void initCommunication(){
 /*
  * This is called to give communication the ability to send information
  */
-void displayCommunication(void);
 void displayCommunication(void){
     switch(ActiveState){
     case Command:
@@ -511,7 +469,6 @@ void displayCommunication(void){
 /*
  * This is called whenever information is recieved.
  */
-void recieveCharForCommunication(char recieved);
 void recieveCharForCommunication(char recieved){
     switch (ActiveState){
     case Command:

@@ -8,8 +8,9 @@
 #include "Pump.h"
 #include "WateringTimer.h"
 #include "Procedures.h"
-#include "Switches.h"
+#include "Communication.h"
 #include <stdio.h> //sprintf
+#include "Switches_LEDs.h""
 
 
 extern PumpInfo Pump0, Pump1, Pump2, Pump3, Pump4;
@@ -97,12 +98,6 @@ void levelSwitchTasks(void){
     }
 }
 
-void turnOnLED(uint16_t mask){
-    LEDPort->OUT |=mask;
-}
-void turnOffLED(uint16_t mask){
-    LEDPort->OUT &=~mask;
-}
 
 //takes a timer object and a string with time value that we want to set
 /*
@@ -122,9 +117,48 @@ void setWaitTime(TimerData *timer, char *inputStr){
     updateTimerTickSettings(timer);
 }
 
-//TODO printSettings - should return a string
-//returnTimerSettings();
+//For specified timer, print the water time, delay time, and whether the pump is currently on or off
+void printTimerSettings(TimerData *timer){
+    sendString("\nWater Time: ");
+    char timerSettingsBuffer[TimeStringOutputLength];
+    timeToString(timerSettingsBuffer, &(timer->TimerTimes.WateringLength),0);
+    sendString("\nDelay Time: ");
+    timeToString(timerSettingsBuffer,&( timer->TimerTimes.WaitLength),0);
+    if(timer->Pump->IsActive){
+        sendString("\nCurrent Status: Watering, Pump ON");
+    }else{
+        sendString("\nCurrent Status: Delay, Pump OFF");
+    }
+}
+//For timers 0-4, print the water time, delay time, and whether the pump is currently on or off
+void printAllTimerSettings(TimerData *timer){
+    sendStringAndNewLine("\nTimer 0: ");
+    printTimerSettings(&Timer0);
+    sendStringAndNewLine("\nTimer 1: ");
+    printTimerSettings(&Timer1);
+    sendStringAndNewLine("\nTimer 2: ");
+    printTimerSettings(&Timer2);
+    sendStringAndNewLine("\nTimer 3: ");
+    printTimerSettings(&Timer3);
+    sendStringAndNewLine("\nTimer 4:");
+    printTimerSettings(&Timer4);
+}
 
-//TODO printToUser
-void displayTimerSettings(TimerData *timer);
+//print to user if water level is low/high and if master switch is enabled
+void printSystemSettings(void){
+    sendString("\nWater Level: ");
+    if(checkLevelSW()){
+        sendStringAndNewLine("LOW, please refill water supply");
+    }else{
+        sendStringAndNewLine("HIGH");
+    }
+    sendString("\nMaster Switch: ");
+    if(masterSwitchCurrentStatus){
+        sendStringAndNewLine("ENABLED - Functions paused ");
+    }else{
+        sendStringAndNewLine("DISABLED - Functionality restored");
+    }
+}
+
+
 
