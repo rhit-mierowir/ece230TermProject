@@ -143,19 +143,19 @@ void addCharWaterPlant(char nextChar){
 //called once all requirements and need to perform tasks and return control
 void completeWaterPlant(char timerSelection) {
     switch (timerSelection){
-    case 0:
+    case '0':
         startNewWaterCycle(&Timer0);
         break;
-    case 1:
+    case '1':
         startNewWaterCycle(&Timer1);
         break;
-    case 2:
+    case '2':
         startNewWaterCycle(&Timer2);
         break;
-    case 3:
+    case '3':
         startNewWaterCycle(&Timer3);
         break;
-    case 4:
+    case '4':
         startNewWaterCycle(&Timer4);
         break;
     default:
@@ -219,7 +219,6 @@ void addCharSetTimerLength(char nextChar){
         if(storeInLastCharUntilEnter(nextChar)){
             //Save first value if enter pressed, advance to next argument
             commandArgumentNumber++;
-            clearLastCharBeforeEnter();
         }
         break;
     case 2:
@@ -238,7 +237,7 @@ void completeSetTimerLength(char waterOrDelay,char timerSelection,char *TimeSett
     sendStringAndNewLine("Implement TimerSelection. Time string is:");
     sendStringAndNewLine(TimeSetting);
     switch (timerSelection){
-    case 0:
+    case '0':
         if(waterOrDelay=='W' || waterOrDelay=='w'){
             stringToTime(TimeSetting,&(Timer0.TimerTimes.WateringLength));
         }else if(waterOrDelay=='D' || waterOrDelay=='d'){
@@ -246,7 +245,7 @@ void completeSetTimerLength(char waterOrDelay,char timerSelection,char *TimeSett
         }
         updateTimerTickSettings(&Timer0);
         break;
-    case 1:
+    case '1':
         if(waterOrDelay=='W' || waterOrDelay=='w'){
             stringToTime(TimeSetting,&(Timer1.TimerTimes.WateringLength));
         }else if(waterOrDelay=='D' || waterOrDelay=='d'){
@@ -254,7 +253,7 @@ void completeSetTimerLength(char waterOrDelay,char timerSelection,char *TimeSett
         }
         updateTimerTickSettings(&Timer1);
         break;
-    case 2:
+    case '2':
         if(waterOrDelay=='W' || waterOrDelay=='w'){
             stringToTime(TimeSetting,&(Timer2.TimerTimes.WateringLength));
         }else if(waterOrDelay=='D' || waterOrDelay=='d'){
@@ -262,7 +261,7 @@ void completeSetTimerLength(char waterOrDelay,char timerSelection,char *TimeSett
         }
         updateTimerTickSettings(&Timer2);
         break;
-    case 3:
+    case '3':
         if(waterOrDelay=='W' || waterOrDelay=='w'){
             stringToTime(TimeSetting,&(Timer3.TimerTimes.WateringLength));
         }else if(waterOrDelay=='D' || waterOrDelay=='d'){
@@ -270,7 +269,7 @@ void completeSetTimerLength(char waterOrDelay,char timerSelection,char *TimeSett
         }
         updateTimerTickSettings(&Timer3);
         break;
-    case 4:
+    case '4':
         if(waterOrDelay=='W' || waterOrDelay=='w'){
             stringToTime(TimeSetting,&(Timer4.TimerTimes.WateringLength));
         }else if(waterOrDelay=='D' || waterOrDelay=='d'){
